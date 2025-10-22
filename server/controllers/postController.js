@@ -40,16 +40,27 @@ exports.getFeed = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
 
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Ensure arrays exist
+    const hiddenPosts = user.hiddenPosts || [];
+    const friends = user.friends || [];
+
     // Get posts that are:
     // 1. Public posts
     // 2. Private posts from friends
     // 3. Your own posts (both public and private)
     // Exclude hidden posts
     const posts = await Post.find({
-      _id: { $nin: user.hiddenPosts },
+      _id: { $nin: hiddenPosts },
       $or: [
         { visibility: 'public' },
-        { visibility: 'private', author: { $in: user.friends } },
+        { visibility: 'private', author: { $in: friends } },
         { author: req.user.id } // Show all your own posts
       ]
     })
