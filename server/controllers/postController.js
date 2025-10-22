@@ -68,9 +68,12 @@ exports.getFeed = async (req, res) => {
       .sort({ createdAt: -1 }) // Sort by latest first
       .limit(50);
 
+    // Filter out posts where author failed to populate (deleted users, etc.)
+    const validPosts = posts.filter(post => post.author !== null);
+
     // Add user's reaction to each post
     const postsWithReactions = await Promise.all(
-      posts.map(async (post) => {
+      validPosts.map(async (post) => {
         const reaction = await Reaction.findOne({
           post: post._id,
           user: req.user.id
@@ -295,9 +298,12 @@ exports.getUserPosts = async (req, res) => {
       .populate('author', 'username fullName avatar')
       .sort({ createdAt: -1 });
 
+    // Filter out posts where author failed to populate
+    const validPosts = posts.filter(post => post.author !== null);
+
     // Add user's reaction to each post
     const postsWithReactions = await Promise.all(
-      posts.map(async (post) => {
+      validPosts.map(async (post) => {
         const reaction = await Reaction.findOne({
           post: post._id,
           user: req.user.id
