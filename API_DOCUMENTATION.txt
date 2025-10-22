@@ -1,0 +1,496 @@
+================================================================================
+                    ISSUETALK BACKEND API DOCUMENTATION
+================================================================================
+
+Project: IsuueTalk (Issue Talk)
+Technology Stack: Node.js + Express.js + MongoDB + Mongoose
+Authentication: JWT Token-based (Bearer token in Authorization header)
+Base Path: Server located at /server directory
+
+================================================================================
+                           TABLE OF CONTENTS
+================================================================================
+
+1. Authentication Endpoints (4 endpoints)
+2. Posts Endpoints (8 endpoints)
+3. Comments Endpoints (3 endpoints)
+4. Reactions Endpoints (3 endpoints)
+5. Users & Friends Endpoints (7 endpoints)
+6. Static Routes (2 endpoints)
+
+Total: 27 API endpoints
+
+================================================================================
+                      1. AUTHENTICATION ENDPOINTS
+================================================================================
+File: server/routes/auth.js
+Controller: server/controllers/authController.js
+
+1.1 REGISTER NEW USER
+    Method: POST
+    Route: /api/auth/register
+    Access: Public
+    Purpose: Create a new user account with email, username, and password
+    Required Fields:
+      - username (3-30 chars, unique)
+      - email (valid email, unique)
+      - password (min 6 chars)
+      - fullName (optional)
+    Returns: JWT token + user profile
+
+1.2 LOGIN USER
+    Method: POST
+    Route: /api/auth/login
+    Access: Public
+    Purpose: Authenticate user and receive JWT token for session
+    Required Fields:
+      - email
+      - password
+    Returns: JWT token + user profile
+
+1.3 GET CURRENT USER PROFILE
+    Method: GET
+    Route: /api/auth/me
+    Access: Protected (requires JWT token)
+    Purpose: Get complete profile information for the logged-in user
+    Returns: Full user profile with friends, friend requests, hidden posts
+
+1.4 UPDATE LANGUAGE PREFERENCE
+    Method: PUT
+    Route: /api/auth/language
+    Access: Protected (requires JWT token)
+    Purpose: Change user's interface language (English or Arabic)
+    Required Fields:
+      - language ("en" or "ar")
+    Returns: Updated user profile
+
+================================================================================
+                         2. POSTS ENDPOINTS
+================================================================================
+File: server/routes/posts.js
+Controller: server/controllers/postController.js
+
+2.1 CREATE NEW POST
+    Method: POST
+    Route: /api/posts
+    Access: Protected (requires JWT token)
+    Purpose: Create a new post with title, content, images, and visibility
+    Content-Type: multipart/form-data
+    Required Fields:
+      - title (max 200 chars)
+      - content (max 5000 chars)
+    Optional Fields:
+      - visibility ("public" or "private", default: "public")
+      - tags (array of strings)
+      - images (up to 5 files, 5MB each)
+    Returns: Created post object
+
+2.2 GET TIMELINE FEED
+    Method: GET
+    Route: /api/posts/feed
+    Access: Protected (requires JWT token)
+    Purpose: Get sorted timeline feed showing public posts + friends' private
+             posts, excluding posts hidden by the user
+    Returns: Array of posts sorted by newest first
+
+2.3 GET SINGLE POST
+    Method: GET
+    Route: /api/posts/:id
+    Access: Protected (requires JWT token)
+    Purpose: Retrieve details of a specific post
+    Privacy Rules:
+      - Public posts: accessible to everyone
+      - Private posts: only accessible to author and friends
+    Returns: Single post object
+
+2.4 UPDATE POST
+    Method: PUT
+    Route: /api/posts/:id
+    Access: Protected (requires JWT token)
+    Purpose: Update post title, content, visibility, or tags
+    Permission: Only post author can update
+    Optional Fields:
+      - title
+      - content
+      - visibility
+      - tags
+    Returns: Updated post object
+
+2.5 DELETE POST
+    Method: DELETE
+    Route: /api/posts/:id
+    Access: Protected (requires JWT token)
+    Purpose: Permanently delete a post
+    Permission: Only post author can delete
+    Returns: Success message
+
+2.6 HIDE POST FROM FEED
+    Method: POST
+    Route: /api/posts/:id/hide
+    Access: Protected (requires JWT token)
+    Purpose: Hide a post from user's feed without deleting it
+    Returns: Success message
+
+2.7 UNHIDE POST
+    Method: POST
+    Route: /api/posts/:id/unhide
+    Access: Protected (requires JWT token)
+    Purpose: Restore a previously hidden post to the feed
+    Returns: Success message
+
+2.8 GET USER'S POSTS
+    Method: GET
+    Route: /api/posts/user/:userId
+    Access: Protected (requires JWT token)
+    Purpose: Get all posts created by a specific user
+    Privacy Rules:
+      - Own posts: see all posts (public + private)
+      - Friend's posts: see all posts (public + private)
+      - Non-friend's posts: see only public posts
+    Returns: Array of posts + statistics (total reactions, total comments)
+
+================================================================================
+                        3. COMMENTS ENDPOINTS
+================================================================================
+File: server/routes/comments.js
+Controller: server/controllers/commentController.js
+
+3.1 CREATE COMMENT
+    Method: POST
+    Route: /api/comments
+    Access: Protected (requires JWT token)
+    Purpose: Add a comment to a post
+    Required Fields:
+      - postId
+      - content (max 1000 chars)
+    Returns: Created comment object
+
+3.2 GET COMMENTS FOR POST
+    Method: GET
+    Route: /api/comments/:postId
+    Access: Protected (requires JWT token)
+    Purpose: Retrieve all comments for a specific post
+    Sorting: Newest comments first
+    Returns: Array of comments with author information
+
+3.3 DELETE COMMENT
+    Method: DELETE
+    Route: /api/comments/:id
+    Access: Protected (requires JWT token)
+    Purpose: Delete a comment from a post
+    Permission: Only comment author can delete
+    Returns: Success message
+
+================================================================================
+                        4. REACTIONS ENDPOINTS
+================================================================================
+File: server/routes/reactions.js
+Controller: server/controllers/reactionController.js
+
+Reaction Types: like, upvote, helpful, insightful
+
+4.1 TOGGLE REACTION
+    Method: POST
+    Route: /api/reactions
+    Access: Protected (requires JWT token)
+    Purpose: Add, update, or remove a reaction to a post
+    Behavior:
+      - Same type → remove reaction
+      - Different type → update reaction
+      - No existing reaction → add reaction
+    Required Fields:
+      - postId
+      - type ("like", "upvote", "helpful", or "insightful")
+    Returns: Reaction object + status (added/updated/removed)
+
+4.2 GET REACTIONS FOR POST
+    Method: GET
+    Route: /api/reactions/:postId
+    Access: Protected (requires JWT token)
+    Purpose: Get all reactions on a post with breakdown by type
+    Returns:
+      - Total count
+      - Count by type (like, upvote, helpful, insightful)
+      - Array of all reactions with user information
+
+4.3 CHECK USER'S REACTION
+    Method: GET
+    Route: /api/reactions/:postId/check
+    Access: Protected (requires JWT token)
+    Purpose: Check if current user has reacted to a specific post
+    Returns: Boolean (reacted/not reacted) + reaction details if exists
+
+================================================================================
+                     5. USERS & FRIENDS ENDPOINTS
+================================================================================
+File: server/routes/users.js
+Controller: server/controllers/userController.js
+
+5.1 SEARCH USERS
+    Method: GET
+    Route: /api/users/search?q=searchterm
+    Access: Protected (requires JWT token)
+    Purpose: Search for users by username or full name
+    Query Parameter:
+      - q (required): search query string
+    Search: Case-insensitive partial matching
+    Returns: Array of matching users (id, username, fullName, avatar)
+
+5.2 GET USER PROFILE
+    Method: GET
+    Route: /api/users/:id
+    Access: Protected (requires JWT token)
+    Purpose: Get detailed profile information for a specific user
+    Returns: User profile including friend list
+
+5.3 SEND FRIEND REQUEST
+    Method: POST
+    Route: /api/users/:id/friend-request
+    Access: Protected (requires JWT token)
+    Purpose: Send a friend request to another user
+    Validation: Cannot send to yourself or existing friends
+    Returns: Success message
+
+5.4 GET FRIEND REQUESTS
+    Method: GET
+    Route: /api/users/friend-requests
+    Access: Protected (requires JWT token)
+    Purpose: Get all pending friend requests for current user
+    Returns: Array of friend requests with sender information
+
+5.5 ACCEPT FRIEND REQUEST
+    Method: POST
+    Route: /api/users/friend-request/:requestId/accept
+    Access: Protected (requires JWT token)
+    Purpose: Accept a pending friend request
+    Result: Both users are added to each other's friend lists
+    Returns: Success message
+
+5.6 REJECT FRIEND REQUEST
+    Method: POST
+    Route: /api/users/friend-request/:requestId/reject
+    Access: Protected (requires JWT token)
+    Purpose: Reject a pending friend request
+    Returns: Success message
+
+5.7 REMOVE FRIEND
+    Method: DELETE
+    Route: /api/users/:id/friend
+    Access: Protected (requires JWT token)
+    Purpose: Remove a user from friend list (mutual removal)
+    Returns: Success message
+
+================================================================================
+                          6. STATIC ROUTES
+================================================================================
+
+6.1 API WELCOME
+    Method: GET
+    Route: /
+    Access: Public
+    Purpose: Welcome message and API information
+    Returns: Welcome message + company info
+
+6.2 STATIC FILE SERVING
+    Method: GET
+    Route: /uploads/*
+    Access: Public
+    Purpose: Serve uploaded images and documents
+    Location: /uploads directory
+
+================================================================================
+                    AUTHENTICATION & SECURITY
+================================================================================
+
+JWT Token Authentication:
+  - All protected routes require: Authorization: Bearer <token>
+  - Token received on login/register
+  - Token contains user ID and expires based on JWT_EXPIRE setting
+  - Token stored in JWT_SECRET environment variable
+
+File Upload Security:
+  - Allowed file types: jpeg, jpg, png, gif, webp, pdf, doc, docx, txt
+  - Max file size: 5MB per file
+  - Max files per request: 5 files
+  - Uploaded to: /uploads directory
+
+================================================================================
+                        DATABASE MODELS
+================================================================================
+
+USER MODEL:
+  - username (unique, 3-30 chars)
+  - email (unique, validated)
+  - password (hashed with bcrypt, min 6 chars)
+  - fullName (optional)
+  - avatar (URL, optional)
+  - bio (max 500 chars)
+  - friends (array of User references)
+  - friendRequests (array with timestamps)
+  - hiddenPosts (array of Post references)
+  - language ('en' or 'ar')
+  - createdAt (timestamp)
+
+POST MODEL:
+  - author (User reference, required)
+  - title (max 200 chars)
+  - content (max 5000 chars)
+  - images (array of URLs)
+  - attachments (array of file objects)
+  - visibility ('public' or 'private')
+  - tags (array of strings)
+  - reactionsCount (integer, default: 0)
+  - commentsCount (integer, default: 0)
+  - createdAt, updatedAt (timestamps)
+
+COMMENT MODEL:
+  - post (Post reference, required)
+  - author (User reference, required)
+  - content (max 1000 chars)
+  - createdAt (timestamp)
+
+REACTION MODEL:
+  - post (Post reference, required)
+  - user (User reference, required)
+  - type ('like', 'upvote', 'helpful', 'insightful')
+  - createdAt (timestamp)
+  - Unique constraint: one reaction per user per post
+
+================================================================================
+                        ERROR RESPONSES
+================================================================================
+
+Standard Error Format:
+  {
+    "success": false,
+    "message": "Error description"
+  }
+
+HTTP Status Codes:
+  - 200 OK: Successful GET/PUT request
+  - 201 Created: Successful POST creating a resource
+  - 400 Bad Request: Invalid input or validation error
+  - 401 Unauthorized: Missing or invalid token
+  - 403 Forbidden: Not authorized for this action
+  - 404 Not Found: Resource not found
+  - 500 Internal Server Error: Server error
+
+================================================================================
+                    ENVIRONMENT VARIABLES
+================================================================================
+
+Required .env file settings:
+  PORT=5000
+  MONGODB_URI=mongodb://localhost:27017/issuetalk
+  JWT_SECRET=your_jwt_secret_key
+  JWT_EXPIRE=7d
+  NODE_ENV=development
+
+================================================================================
+                        QUICK START GUIDE
+================================================================================
+
+1. REGISTER A NEW ACCOUNT:
+   POST /api/auth/register
+   Body: { username, email, password, fullName }
+   → Save the JWT token from response
+
+2. LOGIN (IF ALREADY REGISTERED):
+   POST /api/auth/login
+   Body: { email, password }
+   → Save the JWT token from response
+
+3. USE THE TOKEN:
+   Add to all protected endpoint headers:
+   Authorization: Bearer <your_token_here>
+
+4. CREATE A POST:
+   POST /api/posts
+   Headers: Authorization: Bearer <token>
+   Body: { title, content, visibility, tags }
+
+5. GET FEED:
+   GET /api/posts/feed
+   Headers: Authorization: Bearer <token>
+
+6. SEARCH USERS:
+   GET /api/users/search?q=john
+   Headers: Authorization: Bearer <token>
+
+7. SEND FRIEND REQUEST:
+   POST /api/users/:userId/friend-request
+   Headers: Authorization: Bearer <token>
+
+8. REACT TO A POST:
+   POST /api/reactions
+   Headers: Authorization: Bearer <token>
+   Body: { postId, type }
+
+9. COMMENT ON A POST:
+   POST /api/comments
+   Headers: Authorization: Bearer <token>
+   Body: { postId, content }
+
+================================================================================
+                         API STATISTICS
+================================================================================
+
+Total Endpoints: 27
+Public Endpoints: 4 (register, login, welcome, static files)
+Protected Endpoints: 23 (require authentication)
+
+HTTP Methods:
+  - GET: 10 endpoints
+  - POST: 12 endpoints
+  - PUT: 2 endpoints
+  - DELETE: 3 endpoints
+
+Route Modules: 5
+  - auth.js (4 endpoints)
+  - posts.js (8 endpoints)
+  - comments.js (3 endpoints)
+  - reactions.js (3 endpoints)
+  - users.js (7 endpoints)
+
+Controllers: 5
+Models: 4 (User, Post, Comment, Reaction)
+Middleware: 2 (auth, upload)
+
+================================================================================
+                            PRIVACY RULES
+================================================================================
+
+POST VISIBILITY:
+  - Public posts: visible to all authenticated users
+  - Private posts: visible only to author and friends
+
+USER POSTS VIEWING:
+  - Your own posts: see all (public + private)
+  - Friend's posts: see all (public + private)
+  - Non-friend's posts: see only public posts
+
+TIMELINE FEED:
+  - Shows: public posts + friends' private posts
+  - Excludes: posts you've hidden
+  - Sorted: newest first
+
+================================================================================
+                              NOTES
+================================================================================
+
+- All timestamps are in ISO 8601 format
+- All text fields support UTF-8 encoding (supports Arabic)
+- File uploads use multipart/form-data encoding
+- Pagination is not currently implemented (returns all results)
+- Real-time features (websockets/notifications) are not implemented
+- Password recovery/reset is not implemented
+- Email verification is not implemented
+- Profile picture upload endpoint exists via user avatar field
+
+================================================================================
+                           END OF DOCUMENTATION
+================================================================================
+
+Generated on: 2025-10-21
+For: IsuueTalk Backend API
+Company: 51talk - AI Team

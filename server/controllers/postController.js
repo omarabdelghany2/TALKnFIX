@@ -1,0 +1,326 @@
+const Post = require('../models/Post');
+const User = require('../models/User');
+const Reaction = require('../models/Reaction');
+
+// @desc    Create a new post
+// @route   POST /api/posts
+// @access  Private
+exports.createPost = async (req, res) => {
+  try {
+    const { title, content, visibility, tags } = req.body;
+
+    // Create post
+    const post = await Post.create({
+      author: req.user.id,
+      title,
+      content,
+      visibility: visibility || 'public',
+      tags: tags || [],
+      images: req.files ? req.files.map(file => `/uploads/${file.filename}`) : []
+    });
+
+    const populatedPost = await Post.findById(post._id).populate('author', 'username fullName avatar');
+
+    res.status(201).json({
+      success: true,
+      post: populatedPost
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Get all posts for timeline/feed
+// @route   GET /api/posts/feed
+// @access  Private
+exports.getFeed = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    // Get posts that are:
+    // 1. Public posts
+    // 2. Private posts from friends
+    // 3. Your own posts (both public and private)
+    // Exclude hidden posts
+    const posts = await Post.find({
+      _id: { $nin: user.hiddenPosts },
+      $or: [
+        { visibility: 'public' },
+        { visibility: 'private', author: { $in: user.friends } },
+        { author: req.user.id } // Show all your own posts
+      ]
+    })
+      .populate('author', 'username fullName avatar')
+      .sort({ createdAt: -1 }) // Sort by latest first
+      .limit(50);
+
+    // Add user's reaction to each post
+    const postsWithReactions = await Promise.all(
+      posts.map(async (post) => {
+        const reaction = await Reaction.findOne({
+          post: post._id,
+          user: req.user.id
+        });
+
+        return {
+          ...post.toObject(),
+          userReaction: reaction ? reaction.type : null
+        };
+      })
+    );
+
+    res.json({
+      success: true,
+      count: postsWithReactions.length,
+      posts: postsWithReactions
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Get single post
+// @route   GET /api/posts/:id
+// @access  Private
+exports.getPost = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id)
+      .populate('author', 'username fullName avatar');
+
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: 'Post not found'
+      });
+    }
+
+    // Check visibility permissions
+    const user = await User.findById(req.user.id);
+
+    if (post.visibility === 'private' &&
+        post.author._id.toString() !== req.user.id &&
+        !user.friends.includes(post.author._id)) {
+      return res.status(403).json({
+        success: false,
+        message: 'You do not have permission to view this post'
+      });
+    }
+
+    // Add user's reaction to the post
+    const reaction = await Reaction.findOne({
+      post: post._id,
+      user: req.user.id
+    });
+
+    const postWithReaction = {
+      ...post.toObject(),
+      userReaction: reaction ? reaction.type : null
+    };
+
+    res.json({
+      success: true,
+      post: postWithReaction
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Update post
+// @route   PUT /api/posts/:id
+// @access  Private
+exports.updatePost = async (req, res) => {
+  try {
+    let post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: 'Post not found'
+      });
+    }
+
+    // Make sure user is post owner
+    if (post.author.toString() !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to update this post'
+      });
+    }
+
+    post = await Post.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true
+    }).populate('author', 'username fullName avatar');
+
+    res.json({
+      success: true,
+      post
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Delete post
+// @route   DELETE /api/posts/:id
+// @access  Private
+exports.deletePost = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: 'Post not found'
+      });
+    }
+
+    // Make sure user is post owner
+    if (post.author.toString() !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to delete this post'
+      });
+    }
+
+    await post.deleteOne();
+
+    res.json({
+      success: true,
+      message: 'Post deleted successfully'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Hide post from feed
+// @route   POST /api/posts/:id/hide
+// @access  Private
+exports.hidePost = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    if (user.hiddenPosts.includes(req.params.id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Post already hidden'
+      });
+    }
+
+    user.hiddenPosts.push(req.params.id);
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Post hidden from your feed'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Unhide post
+// @route   POST /api/posts/:id/unhide
+// @access  Private
+exports.unhidePost = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    user.hiddenPosts = user.hiddenPosts.filter(
+      postId => postId.toString() !== req.params.id
+    );
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Post unhidden'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Get user's posts
+// @route   GET /api/posts/user/:userId
+// @access  Private
+exports.getUserPosts = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    const targetUserId = req.params.userId;
+
+    // If viewing own profile, show all posts
+    // If viewing friend's profile, show public + private
+    // If not friend, show only public
+    let query = { author: targetUserId };
+
+    if (targetUserId !== req.user.id && !user.friends.includes(targetUserId)) {
+      query.visibility = 'public';
+    }
+
+    const posts = await Post.find(query)
+      .populate('author', 'username fullName avatar')
+      .sort({ createdAt: -1 });
+
+    // Add user's reaction to each post
+    const postsWithReactions = await Promise.all(
+      posts.map(async (post) => {
+        const reaction = await Reaction.findOne({
+          post: post._id,
+          user: req.user.id
+        });
+
+        return {
+          ...post.toObject(),
+          userReaction: reaction ? reaction.type : null
+        };
+      })
+    );
+
+    // Calculate total stats
+    const stats = await Post.aggregate([
+      { $match: { author: targetUserId } },
+      {
+        $group: {
+          _id: null,
+          totalReactions: { $sum: '$reactionsCount' },
+          totalComments: { $sum: '$commentsCount' }
+        }
+      }
+    ]);
+
+    res.json({
+      success: true,
+      count: postsWithReactions.length,
+      posts: postsWithReactions,
+      stats: stats[0] || { totalReactions: 0, totalComments: 0 }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
