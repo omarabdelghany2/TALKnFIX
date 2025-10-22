@@ -1,0 +1,16 @@
+<svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background rounded rectangle -->
+  <rect x="5" y="5" width="190" height="50" rx="12" fill="#F59E0B" />
+
+  <!-- T letter -->
+  <path d="M25 18 L25 22 L30 22 L30 42 L36 42 L36 22 L41 22 L41 18 Z" fill="white" stroke="white" stroke-width="0.5"/>
+
+  <!-- & symbol -->
+  <path d="M50 24 C48 24 46 25 46 28 C46 30 47 31 49 32 L46 36 C45 37 45 38 45 39 C45 41 47 43 50 43 C53 43 56 41 58 39 L60 42 L63 42 L59 37 C60 35 61 33 61 31 C61 28 59 24 54 24 C52 24 51 25 50 26 C49 25 48 24 50 24 Z M50 27 C51 27 52 28 52 29 C52 30 51 31 50 32 C49 31 48 30 48 29 C48 28 49 27 50 27 Z M53 28 C55 28 57 30 57 32 C57 33 56 34 55 35 L51 38 C50 37 48 36 48 34 C48 33 49 32 50 31 L53 28 Z" fill="white"/>
+
+  <!-- F letter -->
+  <path d="M70 18 L70 42 L76 42 L76 32 L84 32 L84 28 L76 28 L76 22 L86 22 L86 18 Z" fill="white" stroke="white" stroke-width="0.5"/>
+
+  <!-- TalknFix text -->
+  <text x="98" y="36" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="white">TalknFix</text>
+</svg>
