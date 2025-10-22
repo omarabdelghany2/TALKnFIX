@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const Whitelist = require('../models/Whitelist');
 const { generateToken } = require('../middleware/auth');
 
 // @desc    Register a new user
@@ -7,6 +8,16 @@ const { generateToken } = require('../middleware/auth');
 exports.register = async (req, res) => {
   try {
     const { username, email, password, fullName } = req.body;
+
+    // Check if email is in whitelist
+    const isWhitelisted = await Whitelist.findOne({ email: email.toLowerCase() });
+
+    if (!isWhitelisted) {
+      return res.status(403).json({
+        success: false,
+        message: 'Registration is restricted. Your email is not authorized to register. Please contact the administrator.'
+      });
+    }
 
     // Check if user already exists
     const userExists = await User.findOne({ $or: [{ email }, { username }] });
