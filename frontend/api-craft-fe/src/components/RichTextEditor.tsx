@@ -1,13 +1,7 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
-import { lowlight } from 'lowlight';
-import javascript from 'highlight.js/lib/languages/javascript';
-import python from 'highlight.js/lib/languages/python';
-import java from 'highlight.js/lib/languages/java';
-import typescript from 'highlight.js/lib/languages/typescript';
-import go from 'highlight.js/lib/languages/go';
-import rust from 'highlight.js/lib/languages/rust';
+import { common, createLowlight } from 'lowlight';
 import 'highlight.js/styles/github-dark.css';
 import { Button } from './ui/button';
 import {
@@ -23,16 +17,8 @@ import {
   Heading2,
 } from 'lucide-react';
 
-// Register languages for syntax highlighting
-lowlight.registerLanguage('js', javascript);
-lowlight.registerLanguage('javascript', javascript);
-lowlight.registerLanguage('ts', typescript);
-lowlight.registerLanguage('typescript', typescript);
-lowlight.registerLanguage('py', python);
-lowlight.registerLanguage('python', python);
-lowlight.registerLanguage('java', java);
-lowlight.registerLanguage('go', go);
-lowlight.registerLanguage('rust', rust);
+// Create lowlight instance with common languages
+const lowlight = createLowlight(common);
 
 interface RichTextEditorProps {
   content: string;
