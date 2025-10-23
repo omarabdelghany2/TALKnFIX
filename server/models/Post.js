@@ -15,7 +15,12 @@ const postSchema = new mongoose.Schema({
   content: {
     type: String,
     required: [true, 'Please provide content'],
-    maxlength: [5000, 'Content cannot exceed 5000 characters']
+    maxlength: [10000, 'Content cannot exceed 10000 characters']
+  },
+  contentType: {
+    type: String,
+    enum: ['html', 'json', 'markdown', 'text'],
+    default: 'html'
   },
   images: [{
     type: String
@@ -61,5 +66,7 @@ postSchema.pre('save', function(next) {
 // Index for better query performance
 postSchema.index({ author: 1, createdAt: -1 });
 postSchema.index({ visibility: 1, reactionsCount: -1, commentsCount: -1 });
+// Text index for search functionality
+postSchema.index({ title: 'text', content: 'text' });
 
 module.exports = mongoose.model('Post', postSchema);

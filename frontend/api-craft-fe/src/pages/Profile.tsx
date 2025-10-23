@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import { postsAPI, usersAPI, authAPI, getToken } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import ReputationBadge from "@/components/ReputationBadge";
+import BadgesList from "@/components/BadgesList";
 
 const Profile = () => {
   const { id } = useParams();
@@ -211,6 +213,30 @@ const Profile = () => {
               )}
             </div>
           </div>
+
+          {/* Reputation & Level */}
+          {profileUser.reputation !== undefined && (
+            <div className="mt-6 pt-6 border-t border-border">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-lg">Reputation</h3>
+                <ReputationBadge
+                  reputation={profileUser.reputation || 0}
+                  level={profileUser.level || 1}
+                  size="lg"
+                />
+              </div>
+
+              {/* Badges */}
+              {profileUser.badges && profileUser.badges.length > 0 && (
+                <div className="mt-4">
+                  <h4 className="font-medium text-sm mb-3 text-muted-foreground">
+                    Achievements ({profileUser.badges.length})
+                  </h4>
+                  <BadgesList badges={profileUser.badges} showEarnedDate />
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Stats */}
           <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-border">

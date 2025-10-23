@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Read(//Users/omarabdelghany/Documents/**)"
     ],
     "deny": [],
     "ask": []

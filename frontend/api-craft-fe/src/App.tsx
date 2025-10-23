@@ -9,6 +9,8 @@ import PostDetail from "./pages/PostDetail";
 import Friends from "./pages/Friends";
 import Search from "./pages/Search";
 import Profile from "./pages/Profile";
+import Leaderboard from "./pages/Leaderboard";
+import AdvancedSearch from "./pages/AdvancedSearch";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +28,8 @@ const App = () => (
           <Route path="/post/:id" element={<PostDetail />} />
           <Route path="/friends" element={<Friends />} />
           <Route path="/search" element={<Search />} />
+          <Route path="/advanced-search" element={<AdvancedSearch />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/profile/:id" element={<Profile />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

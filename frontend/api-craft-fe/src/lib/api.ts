@@ -106,6 +106,24 @@ export const postsAPI = {
     }),
 
   getUserPosts: (userId: string) => apiCall(`/posts/user/${userId}`),
+
+  search: (params: {
+    q?: string;
+    tags?: string;
+    author?: string;
+    sortBy?: string;
+    dateFrom?: string;
+    dateTo?: string;
+    minReactions?: number;
+  }) => {
+    const queryParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        queryParams.append(key, String(value));
+      }
+    });
+    return apiCall(`/posts/search?${queryParams.toString()}`);
+  },
 };
 
 // Comments API
@@ -164,4 +182,10 @@ export const usersAPI = {
     apiCall(`/users/${id}/friend`, {
       method: 'DELETE',
     }),
+
+  getLeaderboard: (limit: number = 50) => apiCall(`/users/leaderboard?limit=${limit}`),
+
+  getReputation: (id: string) => apiCall(`/users/${id}/reputation`),
+
+  getBadges: (id: string) => apiCall(`/users/${id}/badges`),
 };

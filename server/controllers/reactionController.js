@@ -1,5 +1,6 @@
 const Reaction = require('../models/Reaction');
 const Post = require('../models/Post');
+const { updateReputation, updateStats } = require('../services/reputationService');
 
 // @desc    Toggle reaction on a post
 // @route   POST /api/reactions
@@ -26,11 +27,21 @@ exports.toggleReaction = async (req, res) => {
     if (existingReaction) {
       // If same type, remove reaction (toggle off)
       if (existingReaction.type === type) {
+        const oldType = existingReaction.type;
         await existingReaction.deleteOne();
 
         // Decrement post's reaction count
         post.reactionsCount = Math.max(0, post.reactionsCount - 1);
         await post.save();
+
+        // Deduct reputation from post author
+        const reputationAction = `LOSE_${oldType.toUpperCase()}`;
+        await updateReputation(post.author.toString(), reputationAction);
+        await updateStats(post.author.toString(), 'totalReactionsReceived', -1);
+
+        if (oldType === 'helpful') {
+          await updateStats(post.author.toString(), 'helpfulReactionsReceived', -1);
+        }
 
         return res.json({
           success: true,
@@ -39,8 +50,23 @@ exports.toggleReaction = async (req, res) => {
         });
       } else {
         // If different type, update reaction
+        const oldType = existingReaction.type;
         existingReaction.type = type;
         await existingReaction.save();
+
+        // Remove reputation for old type, add for new type
+        const loseAction = `LOSE_${oldType.toUpperCase()}`;
+        const gainAction = `RECEIVE_${type.toUpperCase()}`;
+        await updateReputation(post.author.toString(), loseAction);
+        await updateReputation(post.author.toString(), gainAction);
+
+        // Update helpful stats if needed
+        if (oldType === 'helpful') {
+          await updateStats(post.author.toString(), 'helpfulReactionsReceived', -1);
+        }
+        if (type === 'helpful') {
+          await updateStats(post.author.toString(), 'helpfulReactionsReceived', 1);
+        }
 
         return res.json({
           success: true,
@@ -61,6 +87,15 @@ exports.toggleReaction = async (req, res) => {
     // Increment post's reaction count
     post.reactionsCount += 1;
     await post.save();
+
+    // Award reputation to post author
+    const reputationAction = `RECEIVE_${type.toUpperCase()}`;
+    await updateReputation(post.author.toString(), reputationAction);
+    await updateStats(post.author.toString(), 'totalReactionsReceived');
+
+    if (type === 'helpful') {
+      await updateStats(post.author.toString(), 'helpfulReactionsReceived');
+    }
 
     res.status(201).json({
       success: true,

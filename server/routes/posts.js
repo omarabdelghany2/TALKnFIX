@@ -8,7 +8,8 @@ const {
   deletePost,
   hidePost,
   unhidePost,
-  getUserPosts
+  getUserPosts,
+  searchPosts
 } = require('../controllers/postController');
 const { protect } = require('../middleware/auth');
 const upload = require('../middleware/upload');
@@ -19,6 +20,7 @@ router.use(protect);
 // Post CRUD
 router.post('/', upload.array('images', 5), createPost);
 router.get('/feed', getFeed);
+router.get('/search', searchPosts);
 router.get('/user/:userId', getUserPosts);
 router.get('/:id', getPost);
 router.put('/:id', updatePost);

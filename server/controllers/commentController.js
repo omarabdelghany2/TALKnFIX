@@ -1,5 +1,6 @@
 const Comment = require('../models/Comment');
 const Post = require('../models/Post');
+const { updateReputation, updateStats } = require('../services/reputationService');
 
 // @desc    Create a comment
 // @route   POST /api/comments
@@ -30,6 +31,10 @@ exports.createComment = async (req, res) => {
 
     const populatedComment = await Comment.findById(comment._id)
       .populate('author', 'username fullName avatar');
+
+    // Award reputation and update stats
+    await updateReputation(req.user.id, 'COMMENT_CREATED');
+    await updateStats(req.user.id, 'totalComments');
 
     res.status(201).json({
       success: true,
@@ -95,6 +100,10 @@ exports.deleteComment = async (req, res) => {
     }
 
     await comment.deleteOne();
+
+    // Deduct reputation and update stats
+    await updateReputation(req.user.id, 'COMMENT_DELETED');
+    await updateStats(req.user.id, 'totalComments', -1);
 
     res.json({
       success: true,

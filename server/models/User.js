@@ -53,6 +53,51 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Post'
   }],
+  reputation: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  level: {
+    type: Number,
+    default: 1,
+    min: 1
+  },
+  badges: [{
+    badgeId: {
+      type: String,
+      required: true
+    },
+    name: String,
+    description: String,
+    icon: String,
+    earnedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
+  stats: {
+    totalPosts: {
+      type: Number,
+      default: 0
+    },
+    totalComments: {
+      type: Number,
+      default: 0
+    },
+    totalReactionsReceived: {
+      type: Number,
+      default: 0
+    },
+    helpfulReactionsReceived: {
+      type: Number,
+      default: 0
+    },
+    acceptedAnswers: {
+      type: Number,
+      default: 0
+    }
+  },
   language: {
     type: String,
     enum: ['en', 'ar'],

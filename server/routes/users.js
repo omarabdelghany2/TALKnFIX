@@ -7,7 +7,10 @@ const {
   rejectFriendRequest,
   removeFriend,
   getFriendRequests,
-  searchUsers
+  searchUsers,
+  getLeaderboard,
+  getUserReputation,
+  getUserBadges
 } = require('../controllers/userController');
 const { protect } = require('../middleware/auth');
 
@@ -15,8 +18,11 @@ const { protect } = require('../middleware/auth');
 router.use(protect);
 
 router.get('/search', searchUsers);
+router.get('/leaderboard', getLeaderboard);
 router.get('/friend-requests', getFriendRequests);
 router.get('/:id', getUserProfile);
+router.get('/:id/reputation', getUserReputation);
+router.get('/:id/badges', getUserBadges);
 router.post('/:id/friend-request', sendFriendRequest);
 router.post('/friend-request/:requestId/accept', acceptFriendRequest);
 router.post('/friend-request/:requestId/reject', rejectFriendRequest);

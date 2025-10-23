@@ -1,6 +1,5 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Image, Globe, Lock, X } from "lucide-react";
@@ -8,6 +7,7 @@ import { useState } from "react";
 import { postsAPI } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
+import RichTextEditor from "./RichTextEditor";
 import {
   Select,
   SelectContent,
@@ -118,13 +118,10 @@ const CreatePostCard = ({ onPostCreated, currentUser }: CreatePostCardProps) => 
             maxLength={200}
             className="font-semibold"
           />
-          <Textarea
+          <RichTextEditor
+            content={content}
+            onChange={setContent}
             placeholder={t('post.shareThoughts')}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            maxLength={5000}
-            rows={3}
-            className="resize-none"
           />
 
           {/* Tags Input */}

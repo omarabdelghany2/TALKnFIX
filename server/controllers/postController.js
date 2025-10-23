@@ -1,6 +1,7 @@
 const Post = require('../models/Post');
 const User = require('../models/User');
 const Reaction = require('../models/Reaction');
+const { updateReputation, updateStats } = require('../services/reputationService');
 
 // @desc    Create a new post
 // @route   POST /api/posts
@@ -20,6 +21,10 @@ exports.createPost = async (req, res) => {
     });
 
     const populatedPost = await Post.findById(post._id).populate('author', 'username fullName avatar');
+
+    // Award reputation and update stats
+    await updateReputation(req.user.id, 'POST_CREATED');
+    await updateStats(req.user.id, 'totalPosts');
 
     res.status(201).json({
       success: true,
@@ -212,6 +217,10 @@ exports.deletePost = async (req, res) => {
 
     await post.deleteOne();
 
+    // Deduct reputation and update stats
+    await updateReputation(req.user.id, 'POST_DELETED');
+    await updateStats(req.user.id, 'totalPosts', -1);
+
     res.json({
       success: true,
       message: 'Post deleted successfully'
@@ -333,6 +342,117 @@ exports.getUserPosts = async (req, res) => {
       count: postsWithReactions.length,
       posts: postsWithReactions,
       stats: stats[0] || { totalReactions: 0, totalComments: 0 }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Search posts with filters
+// @route   GET /api/posts/search
+// @access  Private
+exports.searchPosts = async (req, res) => {
+  try {
+    const { q, tags, author, sortBy, dateFrom, dateTo, minReactions } = req.query;
+
+    let query = {};
+
+    // Text search
+    if (q) {
+      query.$text = { $search: q };
+    }
+
+    // Tag filtering
+    if (tags) {
+      const tagArray = tags.split(',').map(tag => tag.trim());
+      query.tags = { $in: tagArray };
+    }
+
+    // Author filtering
+    if (author) {
+      const user = await User.findOne({ username: author });
+      if (user) {
+        query.author = user._id;
+      }
+    }
+
+    // Date range filtering
+    if (dateFrom || dateTo) {
+      query.createdAt = {};
+      if (dateFrom) query.createdAt.$gte = new Date(dateFrom);
+      if (dateTo) query.createdAt.$lte = new Date(dateTo);
+    }
+
+    // Reaction count filtering
+    if (minReactions) {
+      query.reactionsCount = { $gte: parseInt(minReactions) };
+    }
+
+    // Visibility filter - only show public posts or user's own posts
+    const user = await User.findById(req.user.id);
+    query.$or = [
+      { visibility: 'public' },
+      { visibility: 'private', author: { $in: user.friends } },
+      { author: req.user.id }
+    ];
+
+    // Sorting
+    let sort = {};
+    if (sortBy === 'newest') {
+      sort = { createdAt: -1 };
+    } else if (sortBy === 'oldest') {
+      sort = { createdAt: 1 };
+    } else if (sortBy === 'mostReactions') {
+      sort = { reactionsCount: -1 };
+    } else if (sortBy === 'mostComments') {
+      sort = { commentsCount: -1 };
+    } else if (q && sortBy === 'relevance') {
+      // Text score for relevance sorting
+      sort = { score: { $meta: 'textScore' } };
+      query = { ...query, score: { $meta: 'textScore' } };
+    } else {
+      sort = { createdAt: -1 };
+    }
+
+    const posts = await Post.find(query)
+      .populate('author', 'username fullName avatar')
+      .sort(sort)
+      .limit(50);
+
+    // Filter out posts where author failed to populate
+    const validPosts = posts.filter(post => post.author !== null);
+
+    // Add user's reaction to each post
+    const postsWithReactions = await Promise.all(
+      validPosts.map(async (post) => {
+        const reaction = await Reaction.findOne({
+          post: post._id,
+          user: req.user.id
+        });
+
+        return {
+          ...post.toObject(),
+          userReaction: reaction ? reaction.type : null
+        };
+      })
+    );
+
+    res.json({
+      success: true,
+      count: postsWithReactions.length,
+      posts: postsWithReactions,
+      filters: {
+        q,
+        tags,
+        author,
+        sortBy,
+        dateFrom,
+        dateTo,
+        minReactions
+      }
     });
   } catch (error) {
     res.status(500).json({

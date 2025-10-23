@@ -26,6 +26,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { reactionsAPI, postsAPI, authAPI, getToken } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import DOMPurify from "isomorphic-dompurify";
 
 interface Post {
   _id: string;
@@ -215,7 +216,10 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden }: PostCardPr
       {/* Content */}
       <div className="px-4 pb-2 cursor-pointer" onClick={() => onPostClick?.(post._id)}>
         <h3 className="font-semibold text-lg mb-1">{post.title}</h3>
-        <p className="text-foreground line-clamp-3">{post.content}</p>
+        <div
+          className="prose prose-sm max-w-none text-foreground line-clamp-3"
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
+        />
         
         {/* Tags */}
         {post.tags && post.tags.length > 0 && (

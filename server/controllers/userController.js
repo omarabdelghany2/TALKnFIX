@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const { getReputationDetails } = require('../services/reputationService');
 
 // @desc    Get user profile
 // @route   GET /api/users/:id
@@ -230,6 +231,84 @@ exports.searchUsers = async (req, res) => {
       success: true,
       count: users.length,
       users
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Get leaderboard
+// @route   GET /api/users/leaderboard
+// @access  Private
+exports.getLeaderboard = async (req, res) => {
+  try {
+    const { limit = 50 } = req.query;
+
+    const users = await User.find()
+      .select('username fullName avatar reputation level badges stats')
+      .sort({ reputation: -1 })
+      .limit(parseInt(limit));
+
+    res.json({
+      success: true,
+      count: users.length,
+      users
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Get user reputation details
+// @route   GET /api/users/:id/reputation
+// @access  Private
+exports.getUserReputation = async (req, res) => {
+  try {
+    const details = await getReputationDetails(req.params.id);
+
+    if (!details) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      reputation: details
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Get user badges
+// @route   GET /api/users/:id/badges
+// @access  Private
+exports.getUserBadges = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('badges');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      count: user.badges.length,
+      badges: user.badges
     });
   } catch (error) {
     res.status(500).json({

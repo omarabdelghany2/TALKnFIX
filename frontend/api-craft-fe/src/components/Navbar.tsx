@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Bell, Search, LogOut, User, Users } from "lucide-react";
+import { Bell, Search, LogOut, User, Users, Trophy, Filter } from "lucide-react";
 import { removeToken, usersAPI, getToken } from "@/lib/api";
 import logo from "@/assets/talknfix-logo.png";
 import { useState, useEffect } from "react";
@@ -88,8 +88,27 @@ const Navbar = ({ onSearch }: NavbarProps) => {
             <Button
               variant="ghost"
               size="icon"
+              onClick={() => navigate("/advanced-search")}
+              className="hover:bg-secondary"
+              title="Advanced Search"
+            >
+              <Filter className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/leaderboard")}
+              className="hover:bg-secondary"
+              title="Leaderboard"
+            >
+              <Trophy className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => navigate("/friends")}
               className="hover:bg-secondary relative"
+              title="Friends"
             >
               <Users className="h-5 w-5" />
               {friendRequestCount > 0 && (
