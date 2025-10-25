@@ -265,19 +265,95 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden }: PostCardPr
         )}
       </div>
 
-      {/* Images */}
+      {/* Images - LinkedIn Style */}
       {post.images && post.images.length > 0 && (
-        <div className="px-4 pb-2">
-          <div className={`grid gap-2 ${post.images.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
-            {post.images.map((img, index) => (
+        <div className="w-full">
+          {post.images.length === 1 && (
+            <img
+              src={post.images[0].startsWith('http') ? post.images[0] : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${post.images[0]}`}
+              alt="Post image"
+              className="w-full object-cover max-h-[500px] cursor-pointer hover:opacity-95 transition-opacity"
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open(post.images[0].startsWith('http') ? post.images[0] : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${post.images[0]}`, '_blank');
+              }}
+            />
+          )}
+          {post.images.length === 2 && (
+            <div className="grid grid-cols-2 gap-1">
+              {post.images.map((img, index) => (
+                <img
+                  key={index}
+                  src={img.startsWith('http') ? img : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${img}`}
+                  alt={`Post image ${index + 1}`}
+                  className="w-full h-[300px] object-cover cursor-pointer hover:opacity-95 transition-opacity"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.open(img.startsWith('http') ? img : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${img}`, '_blank');
+                  }}
+                />
+              ))}
+            </div>
+          )}
+          {post.images.length === 3 && (
+            <div className="grid grid-cols-2 gap-1">
               <img
-                key={index}
-                src={img}
-                alt={`Post image ${index + 1}`}
-                className="rounded-lg w-full object-cover max-h-80"
+                src={post.images[0].startsWith('http') ? post.images[0] : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${post.images[0]}`}
+                alt="Post image 1"
+                className="w-full h-[400px] object-cover row-span-2 cursor-pointer hover:opacity-95 transition-opacity"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open(post.images[0].startsWith('http') ? post.images[0] : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${post.images[0]}`, '_blank');
+                }}
               />
-            ))}
-          </div>
+              <img
+                src={post.images[1].startsWith('http') ? post.images[1] : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${post.images[1]}`}
+                alt="Post image 2"
+                className="w-full h-[200px] object-cover cursor-pointer hover:opacity-95 transition-opacity"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open(post.images[1].startsWith('http') ? post.images[1] : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${post.images[1]}`, '_blank');
+                }}
+              />
+              <img
+                src={post.images[2].startsWith('http') ? post.images[2] : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${post.images[2]}`}
+                alt="Post image 3"
+                className="w-full h-[200px] object-cover cursor-pointer hover:opacity-95 transition-opacity"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open(post.images[2].startsWith('http') ? post.images[2] : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${post.images[2]}`, '_blank');
+                }}
+              />
+            </div>
+          )}
+          {post.images.length >= 4 && (
+            <div className="grid grid-cols-2 gap-1">
+              {post.images.slice(0, 4).map((img, index) => (
+                <div key={index} className="relative">
+                  <img
+                    src={img.startsWith('http') ? img : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${img}`}
+                    alt={`Post image ${index + 1}`}
+                    className="w-full h-[250px] object-cover cursor-pointer hover:opacity-95 transition-opacity"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.open(img.startsWith('http') ? img : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${img}`, '_blank');
+                    }}
+                  />
+                  {index === 3 && post.images.length > 4 && (
+                    <div
+                      className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center cursor-pointer hover:bg-opacity-70 transition-all"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onPostClick?.(post._id);
+                      }}
+                    >
+                      <span className="text-white text-3xl font-bold">+{post.images.length - 4}</span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

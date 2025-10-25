@@ -233,13 +233,14 @@ const PostDetail = () => {
 
             {/* Images */}
             {post.images && post.images.length > 0 && (
-              <div className="grid gap-3 mb-4">
+              <div className="grid gap-2 mb-4">
                 {post.images.map((img: string, index: number) => (
                   <img
                     key={index}
-                    src={img}
+                    src={img.startsWith('http') ? img : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${img}`}
                     alt={`Post image ${index + 1}`}
-                    className="rounded-lg w-full object-cover"
+                    className="rounded-lg w-full object-cover max-h-[600px] cursor-pointer hover:opacity-95 transition-opacity"
+                    onClick={() => window.open(img.startsWith('http') ? img : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${img}`, '_blank')}
                   />
                 ))}
               </div>
