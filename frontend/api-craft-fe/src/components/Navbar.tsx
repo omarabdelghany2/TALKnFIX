@@ -2,12 +2,19 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Bell, Search, LogOut, User, Users, Trophy, Filter } from "lucide-react";
+import { Bell, Search, LogOut, User, Users, Trophy, Filter, Menu, X } from "lucide-react";
 import { removeToken, usersAPI, getToken } from "@/lib/api";
 import logo from "@/assets/talknfix-logo.png";
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./LanguageSwitcher";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 interface NavbarProps {
   onSearch?: (query: string) => void;
@@ -18,6 +25,7 @@ const Navbar = ({ onSearch }: NavbarProps) => {
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [friendRequestCount, setFriendRequestCount] = useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     loadFriendRequests();
@@ -63,6 +71,116 @@ const Navbar = ({ onSearch }: NavbarProps) => {
     <nav className="sticky top-0 z-50 bg-card border-b border-border shadow-sm">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 gap-2">
+          {/* Mobile Menu Button */}
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden flex-shrink-0"
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[250px] sm:w-[300px]">
+              <SheetHeader>
+                <SheetTitle>Menu</SheetTitle>
+              </SheetHeader>
+              <div className="flex flex-col gap-4 mt-6">
+                {/* Language Switcher */}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Language</span>
+                  <LanguageSwitcher />
+                </div>
+
+                {/* Advanced Search */}
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => {
+                    navigate("/advanced-search");
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  <Filter className="h-4 w-4 mr-2" />
+                  Advanced Search
+                </Button>
+
+                {/* Leaderboard */}
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => {
+                    navigate("/leaderboard");
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  <Trophy className="h-4 w-4 mr-2" />
+                  Leaderboard
+                </Button>
+
+                {/* Friends */}
+                <Button
+                  variant="outline"
+                  className="w-full justify-start relative"
+                  onClick={() => {
+                    navigate("/friends");
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  <Users className="h-4 w-4 mr-2" />
+                  Friends
+                  {friendRequestCount > 0 && (
+                    <Badge
+                      variant="destructive"
+                      className="ml-auto h-5 w-5 flex items-center justify-center p-0 text-xs"
+                    >
+                      {friendRequestCount}
+                    </Badge>
+                  )}
+                </Button>
+
+                {/* Notifications */}
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  <Bell className="h-4 w-4 mr-2" />
+                  Notifications
+                </Button>
+
+                {/* Profile */}
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => {
+                    navigate("/profile");
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  <User className="h-4 w-4 mr-2" />
+                  Profile
+                </Button>
+
+                {/* Logout */}
+                <Button
+                  variant="destructive"
+                  className="w-full justify-start mt-4"
+                  onClick={() => {
+                    handleLogout();
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
+              </div>
+            </SheetContent>
+          </Sheet>
+
           {/* Logo - Always visible */}
           <Link to="/feed" className="flex items-center space-x-3 flex-shrink-0">
             <img src={logo} alt="TalknFix" className="h-8 md:h-10 w-auto" />
