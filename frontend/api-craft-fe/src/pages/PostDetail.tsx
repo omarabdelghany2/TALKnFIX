@@ -19,6 +19,7 @@ import {
 import { formatDistanceToNow } from "date-fns";
 import { postsAPI, commentsAPI, reactionsAPI, authAPI, getToken } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import DOMPurify from "isomorphic-dompurify";
 
 const reactionIcons = {
   like: ThumbsUp,
@@ -218,7 +219,61 @@ const PostDetail = () => {
 
             {/* Content */}
             <h1 className="text-2xl font-bold mb-3">{post.title}</h1>
-            <p className="text-foreground whitespace-pre-wrap mb-4">{post.content}</p>
+            <div
+              className="prose prose-sm max-w-none text-foreground mb-4 post-content-detail"
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
+            />
+
+            {/* ChatGPT-style code block styling with mobile responsiveness */}
+            <style>{`
+              .post-content-detail pre {
+                background: #1e1e1e;
+                color: #d4d4d4;
+                font-family: 'Courier New', Courier, monospace;
+                padding: 1rem;
+                border-radius: 0.5rem;
+                margin: 0.5rem 0;
+                overflow-x: auto;
+                max-width: 100%;
+                /* Mobile responsive */
+                font-size: 0.75rem;
+              }
+
+              @media (min-width: 768px) {
+                .post-content-detail pre {
+                  font-size: 0.9rem;
+                }
+              }
+
+              .post-content-detail pre code {
+                background: none;
+                color: inherit;
+                padding: 0;
+                white-space: pre;
+                word-break: normal;
+                overflow-wrap: normal;
+              }
+
+              .post-content-detail p {
+                margin: 0.5rem 0;
+                word-break: break-word;
+              }
+
+              .post-content-detail strong {
+                font-weight: bold;
+              }
+
+              .post-content-detail em {
+                font-style: italic;
+              }
+
+              .post-content-detail code:not(pre code) {
+                background: rgba(0, 0, 0, 0.1);
+                padding: 0.2rem 0.4rem;
+                border-radius: 0.25rem;
+                font-size: 0.875em;
+              }
+            `}</style>
 
             {/* Tags */}
             {post.tags && post.tags.length > 0 && (

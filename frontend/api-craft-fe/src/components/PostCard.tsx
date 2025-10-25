@@ -221,27 +221,40 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden }: PostCardPr
           dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
         />
 
-        {/* ChatGPT-style code block styling */}
+        {/* ChatGPT-style code block styling with mobile responsiveness */}
         <style>{`
           .post-content pre {
             background: #1e1e1e;
             color: #d4d4d4;
             font-family: 'Courier New', Courier, monospace;
-            padding: 1rem;
+            padding: 0.75rem;
             border-radius: 0.5rem;
             margin: 0.5rem 0;
             overflow-x: auto;
+            max-width: 100%;
+            /* Mobile responsive */
+            font-size: 0.7rem;
+          }
+
+          @media (min-width: 768px) {
+            .post-content pre {
+              padding: 1rem;
+              font-size: 0.9rem;
+            }
           }
 
           .post-content pre code {
             background: none;
             color: inherit;
-            font-size: 0.9rem;
             padding: 0;
+            white-space: pre;
+            word-break: normal;
+            overflow-wrap: normal;
           }
 
           .post-content p {
             margin: 0.25rem 0;
+            word-break: break-word;
           }
 
           .post-content strong {
@@ -250,6 +263,13 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden }: PostCardPr
 
           .post-content em {
             font-style: italic;
+          }
+
+          .post-content code:not(pre code) {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-size: 0.875em;
           }
         `}</style>
         
