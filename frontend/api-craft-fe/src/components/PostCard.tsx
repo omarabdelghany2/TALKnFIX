@@ -217,7 +217,7 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden }: PostCardPr
       <div className="px-4 pb-2 cursor-pointer" onClick={() => onPostClick?.(post._id)}>
         <h3 className="font-semibold text-lg mb-1">{post.title}</h3>
         <div
-          className="prose prose-sm max-w-none text-foreground line-clamp-3 post-content"
+          className="prose prose-sm max-w-none text-foreground line-clamp-6 md:line-clamp-4 post-content"
           dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
         />
 
