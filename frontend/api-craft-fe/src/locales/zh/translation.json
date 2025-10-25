@@ -15,11 +15,15 @@
   },
   "nav": {
     "searchPlaceholder": "搜索用户...",
+    "menu": "菜单",
     "feed": "动态",
     "friends": "好友",
     "profile": "个人资料",
     "notifications": "通知",
-    "logout": "退出登录"
+    "logout": "退出登录",
+    "advancedSearch": "高级搜索",
+    "leaderboard": "排行榜",
+    "language": "语言"
   },
   "auth": {
     "login": "登录",

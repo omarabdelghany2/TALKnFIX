@@ -84,12 +84,12 @@ const Navbar = ({ onSearch }: NavbarProps) => {
             </SheetTrigger>
             <SheetContent side="left" className="w-[250px] sm:w-[300px]">
               <SheetHeader>
-                <SheetTitle>Menu</SheetTitle>
+                <SheetTitle>{t('nav.menu')}</SheetTitle>
               </SheetHeader>
               <div className="flex flex-col gap-4 mt-6">
                 {/* Language Switcher */}
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Language</span>
+                  <span className="text-sm font-medium">{t('nav.language')}</span>
                   <LanguageSwitcher />
                 </div>
 
@@ -103,7 +103,7 @@ const Navbar = ({ onSearch }: NavbarProps) => {
                   }}
                 >
                   <Filter className="h-4 w-4 mr-2" />
-                  Advanced Search
+                  {t('nav.advancedSearch')}
                 </Button>
 
                 {/* Leaderboard */}
@@ -116,7 +116,7 @@ const Navbar = ({ onSearch }: NavbarProps) => {
                   }}
                 >
                   <Trophy className="h-4 w-4 mr-2" />
-                  Leaderboard
+                  {t('nav.leaderboard')}
                 </Button>
 
                 {/* Friends */}
@@ -129,7 +129,7 @@ const Navbar = ({ onSearch }: NavbarProps) => {
                   }}
                 >
                   <Users className="h-4 w-4 mr-2" />
-                  Friends
+                  {t('nav.friends')}
                   {friendRequestCount > 0 && (
                     <Badge
                       variant="destructive"
@@ -149,7 +149,7 @@ const Navbar = ({ onSearch }: NavbarProps) => {
                   }}
                 >
                   <Bell className="h-4 w-4 mr-2" />
-                  Notifications
+                  {t('nav.notifications')}
                 </Button>
 
                 {/* Profile */}
@@ -162,7 +162,7 @@ const Navbar = ({ onSearch }: NavbarProps) => {
                   }}
                 >
                   <User className="h-4 w-4 mr-2" />
-                  Profile
+                  {t('nav.profile')}
                 </Button>
 
                 {/* Logout */}
@@ -175,7 +175,7 @@ const Navbar = ({ onSearch }: NavbarProps) => {
                   }}
                 >
                   <LogOut className="h-4 w-4 mr-2" />
-                  Logout
+                  {t('nav.logout')}
                 </Button>
               </div>
             </SheetContent>
@@ -208,7 +208,7 @@ const Navbar = ({ onSearch }: NavbarProps) => {
               size="icon"
               onClick={() => navigate("/advanced-search")}
               className="md:hidden hover:bg-secondary"
-              title="Search"
+              title={t('common.search')}
             >
               <Search className="h-5 w-5" />
             </Button>
@@ -221,7 +221,7 @@ const Navbar = ({ onSearch }: NavbarProps) => {
                 size="icon"
                 onClick={() => navigate("/advanced-search")}
                 className="hover:bg-secondary"
-                title="Advanced Search"
+                title={t('nav.advancedSearch')}
               >
                 <Filter className="h-5 w-5" />
               </Button>
@@ -230,19 +230,19 @@ const Navbar = ({ onSearch }: NavbarProps) => {
                 size="icon"
                 onClick={() => navigate("/leaderboard")}
                 className="hover:bg-secondary"
-                title="Leaderboard"
+                title={t('nav.leaderboard')}
               >
                 <Trophy className="h-5 w-5" />
               </Button>
             </div>
 
-            {/* Always visible menu items */}
+            {/* Desktop-only menu items */}
             <Button
               variant="ghost"
               size="icon"
               onClick={() => navigate("/friends")}
-              className="hover:bg-secondary relative"
-              title="Friends"
+              className="hidden md:flex hover:bg-secondary relative"
+              title={t('nav.friends')}
             >
               <Users className="h-5 w-5" />
               {friendRequestCount > 0 && (
@@ -258,6 +258,7 @@ const Navbar = ({ onSearch }: NavbarProps) => {
               variant="ghost"
               size="icon"
               className="hidden md:flex hover:bg-secondary"
+              title={t('nav.notifications')}
             >
               <Bell className="h-5 w-5" />
             </Button>
@@ -265,15 +266,19 @@ const Navbar = ({ onSearch }: NavbarProps) => {
               variant="ghost"
               size="icon"
               onClick={() => navigate("/profile")}
-              className="hover:bg-secondary"
+              className="hidden md:flex hover:bg-secondary"
+              title={t('nav.profile')}
             >
               <User className="h-5 w-5" />
             </Button>
+
+            {/* Mobile & Desktop Logout */}
             <Button
               variant="ghost"
               size="icon"
               onClick={handleLogout}
               className="hover:bg-destructive hover:text-destructive-foreground"
+              title={t('nav.logout')}
             >
               <LogOut className="h-5 w-5" />
             </Button>

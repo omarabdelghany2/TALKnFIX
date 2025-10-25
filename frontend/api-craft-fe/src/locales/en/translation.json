@@ -15,11 +15,15 @@
   },
   "nav": {
     "searchPlaceholder": "Search users...",
+    "menu": "Menu",
     "feed": "Feed",
     "friends": "Friends",
     "profile": "Profile",
     "notifications": "Notifications",
-    "logout": "Logout"
+    "logout": "Logout",
+    "advancedSearch": "Advanced Search",
+    "leaderboard": "Leaderboard",
+    "language": "Language"
   },
   "auth": {
     "login": "Login",

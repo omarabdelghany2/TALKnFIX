@@ -15,11 +15,15 @@
   },
   "nav": {
     "searchPlaceholder": "ابحث عن المستخدمين...",
+    "menu": "القائمة",
     "feed": "الصفحة الرئيسية",
     "friends": "الأصدقاء",
     "profile": "الملف الشخصي",
     "notifications": "الإشعارات",
-    "logout": "تسجيل الخروج"
+    "logout": "تسجيل الخروج",
+    "advancedSearch": "بحث متقدم",
+    "leaderboard": "لوحة المتصدرين",
+    "language": "اللغة"
   },
   "auth": {
     "login": "تسجيل الدخول",

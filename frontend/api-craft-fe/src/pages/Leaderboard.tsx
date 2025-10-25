@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import ReputationBadge from '@/components/ReputationBadge';
 import BadgesList from '@/components/BadgesList';
 import { useToast } from '@/hooks/use-toast';
+import Navbar from '@/components/Navbar';
 
 interface LeaderboardUser {
   _id: string;
@@ -65,14 +66,19 @@ const Leaderboard = () => {
 
   if (loading) {
     return (
-      <div className="container max-w-4xl mx-auto py-8">
-        <div className="text-center">Loading leaderboard...</div>
+      <div className="min-h-screen bg-secondary">
+        <Navbar />
+        <div className="container max-w-4xl mx-auto py-8">
+          <div className="text-center">Loading leaderboard...</div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container max-w-4xl mx-auto py-8 px-4">
+    <div className="min-h-screen bg-secondary">
+      <Navbar />
+      <div className="container max-w-4xl mx-auto py-8 px-4">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
           <Trophy className="h-8 w-8 text-yellow-500" />
@@ -179,6 +185,7 @@ const Leaderboard = () => {
           No users found. Be the first to contribute!
         </Card>
       )}
+      </div>
     </div>
   );
 };
