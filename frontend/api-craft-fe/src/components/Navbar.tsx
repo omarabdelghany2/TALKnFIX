@@ -62,15 +62,15 @@ const Navbar = ({ onSearch }: NavbarProps) => {
   return (
     <nav className="sticky top-0 z-50 bg-card border-b border-border shadow-sm">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link to="/feed" className="flex items-center space-x-3">
-            <img src={logo} alt="TalknFix" className="h-10 w-auto" />
+        <div className="flex items-center justify-between h-16 gap-2">
+          {/* Logo - Always visible */}
+          <Link to="/feed" className="flex items-center space-x-3 flex-shrink-0">
+            <img src={logo} alt="TalknFix" className="h-8 md:h-10 w-auto" />
           </Link>
 
-          {/* Search Bar */}
-          <form onSubmit={handleSearch} className="flex-1 max-w-xl mx-8">
-            <div className="relative">
+          {/* Search Bar - Hidden on mobile, shown on tablet+ */}
+          <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-xl mx-4">
+            <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
                 type="text"
@@ -83,26 +83,42 @@ const Navbar = ({ onSearch }: NavbarProps) => {
           </form>
 
           {/* Right Menu */}
-          <div className="flex items-center space-x-2">
-            <LanguageSwitcher />
+          <div className="flex items-center space-x-1 md:space-x-2">
+            {/* Search icon for mobile */}
             <Button
               variant="ghost"
               size="icon"
               onClick={() => navigate("/advanced-search")}
-              className="hover:bg-secondary"
-              title="Advanced Search"
+              className="md:hidden hover:bg-secondary"
+              title="Search"
             >
-              <Filter className="h-5 w-5" />
+              <Search className="h-5 w-5" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate("/leaderboard")}
-              className="hover:bg-secondary"
-              title="Leaderboard"
-            >
-              <Trophy className="h-5 w-5" />
-            </Button>
+
+            {/* Desktop menu items */}
+            <div className="hidden md:flex items-center space-x-2">
+              <LanguageSwitcher />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate("/advanced-search")}
+                className="hover:bg-secondary"
+                title="Advanced Search"
+              >
+                <Filter className="h-5 w-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate("/leaderboard")}
+                className="hover:bg-secondary"
+                title="Leaderboard"
+              >
+                <Trophy className="h-5 w-5" />
+              </Button>
+            </div>
+
+            {/* Always visible menu items */}
             <Button
               variant="ghost"
               size="icon"
@@ -123,7 +139,7 @@ const Navbar = ({ onSearch }: NavbarProps) => {
             <Button
               variant="ghost"
               size="icon"
-              className="hover:bg-secondary"
+              className="hidden md:flex hover:bg-secondary"
             >
               <Bell className="h-5 w-5" />
             </Button>
