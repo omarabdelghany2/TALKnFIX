@@ -267,12 +267,12 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden }: PostCardPr
 
       {/* Images - LinkedIn Style */}
       {post.images && post.images.length > 0 && (
-        <div className="w-full">
+        <div className="w-full bg-gray-100 dark:bg-gray-900">
           {post.images.length === 1 && (
             <img
               src={post.images[0].startsWith('http') ? post.images[0] : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${post.images[0]}`}
               alt="Post image"
-              className="w-full object-cover max-h-[500px] cursor-pointer hover:opacity-95 transition-opacity"
+              className="w-full object-contain max-h-[600px] cursor-pointer hover:opacity-95 transition-opacity"
               onClick={(e) => {
                 e.stopPropagation();
                 window.open(post.images[0].startsWith('http') ? post.images[0] : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${post.images[0]}`, '_blank');
@@ -286,7 +286,7 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden }: PostCardPr
                   key={index}
                   src={img.startsWith('http') ? img : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${img}`}
                   alt={`Post image ${index + 1}`}
-                  className="w-full h-[300px] object-cover cursor-pointer hover:opacity-95 transition-opacity"
+                  className="w-full object-contain max-h-[400px] cursor-pointer hover:opacity-95 transition-opacity bg-black"
                   onClick={(e) => {
                     e.stopPropagation();
                     window.open(img.startsWith('http') ? img : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${img}`, '_blank');
@@ -300,7 +300,7 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden }: PostCardPr
               <img
                 src={post.images[0].startsWith('http') ? post.images[0] : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${post.images[0]}`}
                 alt="Post image 1"
-                className="w-full h-[400px] object-cover row-span-2 cursor-pointer hover:opacity-95 transition-opacity"
+                className="w-full object-contain max-h-[500px] row-span-2 cursor-pointer hover:opacity-95 transition-opacity bg-black"
                 onClick={(e) => {
                   e.stopPropagation();
                   window.open(post.images[0].startsWith('http') ? post.images[0] : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${post.images[0]}`, '_blank');
@@ -309,7 +309,7 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden }: PostCardPr
               <img
                 src={post.images[1].startsWith('http') ? post.images[1] : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${post.images[1]}`}
                 alt="Post image 2"
-                className="w-full h-[200px] object-cover cursor-pointer hover:opacity-95 transition-opacity"
+                className="w-full object-contain max-h-[250px] cursor-pointer hover:opacity-95 transition-opacity bg-black"
                 onClick={(e) => {
                   e.stopPropagation();
                   window.open(post.images[1].startsWith('http') ? post.images[1] : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${post.images[1]}`, '_blank');
@@ -318,7 +318,7 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden }: PostCardPr
               <img
                 src={post.images[2].startsWith('http') ? post.images[2] : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${post.images[2]}`}
                 alt="Post image 3"
-                className="w-full h-[200px] object-cover cursor-pointer hover:opacity-95 transition-opacity"
+                className="w-full object-contain max-h-[250px] cursor-pointer hover:opacity-95 transition-opacity bg-black"
                 onClick={(e) => {
                   e.stopPropagation();
                   window.open(post.images[2].startsWith('http') ? post.images[2] : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${post.images[2]}`, '_blank');
@@ -329,11 +329,11 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden }: PostCardPr
           {post.images.length >= 4 && (
             <div className="grid grid-cols-2 gap-1">
               {post.images.slice(0, 4).map((img, index) => (
-                <div key={index} className="relative">
+                <div key={index} className="relative bg-black">
                   <img
                     src={img.startsWith('http') ? img : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${img}`}
                     alt={`Post image ${index + 1}`}
-                    className="w-full h-[250px] object-cover cursor-pointer hover:opacity-95 transition-opacity"
+                    className="w-full object-contain max-h-[300px] cursor-pointer hover:opacity-95 transition-opacity"
                     onClick={(e) => {
                       e.stopPropagation();
                       window.open(img.startsWith('http') ? img : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${img}`, '_blank');
