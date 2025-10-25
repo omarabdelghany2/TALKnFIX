@@ -217,9 +217,41 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden }: PostCardPr
       <div className="px-4 pb-2 cursor-pointer" onClick={() => onPostClick?.(post._id)}>
         <h3 className="font-semibold text-lg mb-1">{post.title}</h3>
         <div
-          className="prose prose-sm max-w-none text-foreground line-clamp-3"
+          className="prose prose-sm max-w-none text-foreground line-clamp-3 post-content"
           dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
         />
+
+        {/* ChatGPT-style code block styling */}
+        <style>{`
+          .post-content pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 0.5rem 0;
+            overflow-x: auto;
+          }
+
+          .post-content pre code {
+            background: none;
+            color: inherit;
+            font-size: 0.9rem;
+            padding: 0;
+          }
+
+          .post-content p {
+            margin: 0.25rem 0;
+          }
+
+          .post-content strong {
+            font-weight: bold;
+          }
+
+          .post-content em {
+            font-style: italic;
+          }
+        `}</style>
         
         {/* Tags */}
         {post.tags && post.tags.length > 0 && (
