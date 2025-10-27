@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Navbar from "@/components/Navbar";
 import CreatePostCard from "@/components/CreatePostCard";
 import PostCard from "@/components/PostCard";
@@ -8,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const Feed = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [posts, setPosts] = useState<any[]>([]);
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -39,8 +41,8 @@ const Feed = () => {
       setPosts(response.posts || []);
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message || "Failed to load feed",
+        title: t("common.error"),
+        description: error.message || t("feed.failedToLoad"),
         variant: "destructive",
       });
     } finally {
@@ -66,11 +68,11 @@ const Feed = () => {
         <div className="mt-6 space-y-4">
           {isLoading ? (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">Loading posts...</p>
+              <p className="text-muted-foreground">{t("feed.loadingPosts")}</p>
             </div>
           ) : posts.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">No posts yet. Be the first to share!</p>
+              <p className="text-muted-foreground">{t("feed.noPosts")}</p>
             </div>
           ) : (
             posts.map((post) => (

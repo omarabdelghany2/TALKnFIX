@@ -24,6 +24,7 @@ import {
 import { formatDistanceToNow } from "date-fns";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { reactionsAPI, postsAPI, authAPI, getToken } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import DOMPurify from "isomorphic-dompurify";
@@ -63,6 +64,7 @@ const reactionIcons = {
 
 const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden }: PostCardProps) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [currentReaction, setCurrentReaction] = useState(post.userReaction || null);
   const [reactionCount, setReactionCount] = useState(post.reactionsCount);
@@ -90,14 +92,14 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden }: PostCardPr
     try {
       await postsAPI.delete(post._id);
       toast({
-        title: "Success",
-        description: "Post deleted",
+        title: t("common.success"),
+        description: t("postCard.postDeleted"),
       });
       onPostDeleted?.();
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message || "Failed to delete post",
+        title: t("common.error"),
+        description: error.message || t("postCard.failedToDelete"),
         variant: "destructive",
       });
     }
@@ -107,14 +109,14 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden }: PostCardPr
     try {
       await postsAPI.hide(post._id);
       toast({
-        title: "Success",
-        description: "Post hidden from your feed",
+        title: t("common.success"),
+        description: t("postCard.postHidden"),
       });
       onPostHidden?.();
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message || "Failed to hide post",
+        title: t("common.error"),
+        description: error.message || t("postCard.failedToHide"),
         variant: "destructive",
       });
     }
@@ -140,8 +142,8 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden }: PostCardPr
       }
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message || "Failed to react to post",
+        title: t("common.error"),
+        description: error.message || t("postCard.failedToReact"),
         variant: "destructive",
       });
     }
@@ -170,12 +172,12 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden }: PostCardPr
                 {post.visibility === "public" ? (
                   <div className="flex items-center space-x-1">
                     <Globe className="h-3 w-3" />
-                    <span>Public</span>
+                    <span>{t("postCard.public")}</span>
                   </div>
                 ) : (
                   <div className="flex items-center space-x-1">
                     <Lock className="h-3 w-3" />
-                    <span>Friends</span>
+                    <span>{t("postCard.friends")}</span>
                   </div>
                 )}
               </div>
@@ -192,20 +194,20 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden }: PostCardPr
                 <>
                   <DropdownMenuItem onClick={() => navigate(`/post/${post._id}`)}>
                     <Edit className="h-4 w-4 mr-2" />
-                    Edit Post
+                    {t("postCard.editPost")}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={handleDeletePost}
                     className="text-destructive focus:text-destructive"
                   >
                     <Trash2 className="h-4 w-4 mr-2" />
-                    Delete Post
+                    {t("postCard.deletePost")}
                   </DropdownMenuItem>
                 </>
               ) : (
                 <DropdownMenuItem onClick={handleHidePost}>
                   <EyeOff className="h-4 w-4 mr-2" />
-                  Hide Post
+                  {t("postCard.hidePost")}
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>
@@ -380,8 +382,8 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden }: PostCardPr
       {/* Stats */}
       <div className="px-4 py-2 border-t border-border">
         <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <span>{reactionCount} reactions</span>
-          <span>{post.commentsCount} comments</span>
+          <span>{reactionCount} {t("postCard.reactions")}</span>
+          <span>{post.commentsCount} {t("postCard.comments")}</span>
         </div>
       </div>
 
@@ -397,7 +399,7 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden }: PostCardPr
               className="flex items-center space-x-1"
             >
               <Icon className="h-4 w-4" />
-              <span className="text-xs capitalize">{type}</span>
+              <span className="text-xs capitalize">{t(`postCard.${type}`)}</span>
             </Button>
           ))}
         </div>
@@ -408,7 +410,7 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden }: PostCardPr
           onClick={() => onPostClick?.(post._id)}
         >
           <MessageCircle className="h-4 w-4" />
-          <span>Comment</span>
+          <span>{t("postCard.comment")}</span>
         </Button>
       </div>
     </Card>

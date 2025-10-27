@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Navbar from "@/components/Navbar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const Friends = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [friendRequests, setFriendRequests] = useState<any[]>([]);
@@ -37,8 +39,8 @@ const Friends = () => {
       setFriendRequests(requestsResponse.requests || []);
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message || "Failed to load data",
+        title: t("common.error"),
+        description: error.message || t("friendsPage.failedToLoad"),
         variant: "destructive",
       });
     } finally {
@@ -50,16 +52,16 @@ const Friends = () => {
     try {
       await usersAPI.acceptFriendRequest(requestId);
       toast({
-        title: "Success",
-        description: "Friend request accepted",
+        title: t("common.success"),
+        description: t("friendsPage.requestAccepted"),
       });
       loadData();
       // Notify Navbar to refresh friend requests count
       window.dispatchEvent(new Event('friendRequestsUpdated'));
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message || "Failed to accept request",
+        title: t("common.error"),
+        description: error.message || t("friendsPage.failedToAccept"),
         variant: "destructive",
       });
     }
@@ -69,16 +71,16 @@ const Friends = () => {
     try {
       await usersAPI.rejectFriendRequest(requestId);
       toast({
-        title: "Success",
-        description: "Friend request rejected",
+        title: t("common.success"),
+        description: t("friendsPage.requestRejected"),
       });
       loadData();
       // Notify Navbar to refresh friend requests count
       window.dispatchEvent(new Event('friendRequestsUpdated'));
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message || "Failed to reject request",
+        title: t("common.error"),
+        description: error.message || t("friendsPage.failedToReject"),
         variant: "destructive",
       });
     }
@@ -88,14 +90,14 @@ const Friends = () => {
     try {
       await usersAPI.removeFriend(friendId);
       toast({
-        title: "Success",
-        description: "Friend removed",
+        title: t("common.success"),
+        description: t("friendsPage.friendRemoved"),
       });
       loadData();
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message || "Failed to remove friend",
+        title: t("common.error"),
+        description: error.message || t("friendsPage.failedToRemove"),
         variant: "destructive",
       });
     }
@@ -110,7 +112,7 @@ const Friends = () => {
       <div className="min-h-screen bg-secondary">
         <Navbar onSearch={handleSearch} />
         <div className="container mx-auto px-4 py-6 text-center">
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </div>
     );
@@ -121,18 +123,18 @@ const Friends = () => {
       <Navbar onSearch={handleSearch} />
       
       <div className="container mx-auto px-4 py-6 max-w-4xl">
-        <h1 className="text-3xl font-bold mb-6">Friends</h1>
+        <h1 className="text-3xl font-bold mb-6">{t("friendsPage.title")}</h1>
 
         <Tabs defaultValue="friends" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-6">
             <TabsTrigger value="friends">
-              My Friends
+              {t("friendsPage.myFriends")}
               <Badge variant="secondary" className="ml-2">
                 {currentUser?.friends?.length || 0}
               </Badge>
             </TabsTrigger>
             <TabsTrigger value="requests">
-              Requests
+              {t("friendsPage.requests")}
               <Badge variant="secondary" className="ml-2">
                 {friendRequests.length}
               </Badge>
@@ -143,13 +145,13 @@ const Friends = () => {
             <div className="grid gap-4 md:grid-cols-2">
               {currentUser?.friends?.length === 0 ? (
                 <Card className="col-span-2 p-8 text-center">
-                  <p className="text-muted-foreground">No friends yet. Search for users to connect!</p>
+                  <p className="text-muted-foreground">{t("friendsPage.noFriendsYet")}</p>
                   <Button
                     className="mt-4"
                     onClick={() => navigate("/search")}
                   >
                     <UserPlus className="h-4 w-4 mr-2" />
-                    Find Friends
+                    {t("friendsPage.findFriends")}
                   </Button>
                 </Card>
               ) : (
@@ -173,7 +175,7 @@ const Friends = () => {
                           size="sm"
                           onClick={() => handleRemoveFriend(friend._id)}
                         >
-                          Remove
+                          {t("friendsPage.remove")}
                         </Button>
                       </div>
                     </Card>
@@ -186,7 +188,7 @@ const Friends = () => {
             <div className="space-y-4">
               {friendRequests.length === 0 ? (
                 <Card className="p-8 text-center">
-                  <p className="text-muted-foreground">No pending friend requests</p>
+                  <p className="text-muted-foreground">{t("friendsPage.noPendingRequests")}</p>
                 </Card>
               ) : (
                 friendRequests
@@ -212,7 +214,7 @@ const Friends = () => {
                             onClick={() => handleAcceptRequest(request.from._id)}
                           >
                             <Check className="h-4 w-4 mr-1" />
-                            Accept
+                            {t("friendsPage.accept")}
                           </Button>
                           <Button
                             variant="outline"
@@ -220,7 +222,7 @@ const Friends = () => {
                             onClick={() => handleRejectRequest(request.from._id)}
                           >
                             <X className="h-4 w-4 mr-1" />
-                            Reject
+                            {t("friendsPage.reject")}
                           </Button>
                         </div>
                       </div>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Navbar from "@/components/Navbar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ const reactionIcons = {
 const PostDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [post, setPost] = useState<any>(null);
   const [comments, setComments] = useState<any[]>([]);
@@ -71,8 +73,8 @@ const PostDetail = () => {
       setReactionCount(response.post.reactionsCount);
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message || "Failed to load post",
+        title: t("common.error"),
+        description: error.message || t("postDetail.failedToLoad"),
         variant: "destructive",
       });
       navigate("/feed");
@@ -114,8 +116,8 @@ const PostDetail = () => {
       }
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message || "Failed to react to post",
+        title: t("common.error"),
+        description: error.message || t("postCard.failedToReact"),
         variant: "destructive",
       });
     }
@@ -132,8 +134,8 @@ const PostDetail = () => {
       });
 
       toast({
-        title: "Success",
-        description: "Comment added",
+        title: t("common.success"),
+        description: t("postDetail.commentPosted"),
       });
 
       setNewComment("");
@@ -141,8 +143,8 @@ const PostDetail = () => {
       loadPost(); // Refresh to update comment count
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message || "Failed to add comment",
+        title: t("common.error"),
+        description: error.message || t("postDetail.failedToPost"),
         variant: "destructive",
       });
     } finally {
@@ -154,15 +156,15 @@ const PostDetail = () => {
     try {
       await commentsAPI.delete(commentId);
       toast({
-        title: "Success",
-        description: "Comment deleted",
+        title: t("common.success"),
+        description: t("postDetail.commentDeleted"),
       });
       loadComments();
       loadPost();
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message || "Failed to delete comment",
+        title: t("common.error"),
+        description: error.message || t("postDetail.failedToDelete"),
         variant: "destructive",
       });
     }
@@ -173,7 +175,7 @@ const PostDetail = () => {
       <div className="min-h-screen bg-secondary">
         <Navbar />
         <div className="container mx-auto px-4 py-6 text-center">
-          <p className="text-muted-foreground">Loading post...</p>
+          <p className="text-muted-foreground">{t("postDetail.loading")}</p>
         </div>
       </div>
     );
@@ -204,12 +206,12 @@ const PostDetail = () => {
                     {post.visibility === "public" ? (
                       <div className="flex items-center space-x-1">
                         <Globe className="h-3 w-3" />
-                        <span>Public</span>
+                        <span>{t("postCard.public")}</span>
                       </div>
                     ) : (
                       <div className="flex items-center space-x-1">
                         <Lock className="h-3 w-3" />
-                        <span>Friends</span>
+                        <span>{t("postCard.friends")}</span>
                       </div>
                     )}
                   </div>
@@ -303,8 +305,8 @@ const PostDetail = () => {
 
             {/* Stats */}
             <div className="flex items-center justify-between py-3 border-y border-border">
-              <span className="text-sm text-muted-foreground">{reactionCount} reactions</span>
-              <span className="text-sm text-muted-foreground">{post.commentsCount} comments</span>
+              <span className="text-sm text-muted-foreground">{reactionCount} {t("postDetail.reactions")}</span>
+              <span className="text-sm text-muted-foreground">{post.commentsCount} {t("postDetail.comments")}</span>
             </div>
 
             {/* Reactions */}
@@ -318,7 +320,7 @@ const PostDetail = () => {
                   className="flex items-center justify-center space-x-1"
                 >
                   <Icon className="h-4 w-4" />
-                  <span className="text-xs capitalize">{type}</span>
+                  <span className="text-xs capitalize">{t(`postCard.${type}`)}</span>
                 </Button>
               ))}
             </div>
@@ -327,7 +329,7 @@ const PostDetail = () => {
 
         {/* Comments Section */}
         <Card className="mt-4 p-6">
-          <h2 className="text-xl font-semibold mb-4">Comments ({comments.length})</h2>
+          <h2 className="text-xl font-semibold mb-4">{t("postCard.comments")} ({comments.length})</h2>
 
           {/* Add Comment */}
           <div className="flex space-x-3 mb-6">
@@ -338,7 +340,7 @@ const PostDetail = () => {
             </Avatar>
             <div className="flex-1">
               <Textarea
-                placeholder="Write a comment..."
+                placeholder={t("postDetail.writeComment")}
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 rows={2}
@@ -351,7 +353,7 @@ const PostDetail = () => {
                 size="sm"
               >
                 <Send className="h-4 w-4 mr-1" />
-                Comment
+                {isSubmitting ? t("postDetail.posting") : t("postDetail.postComment")}
               </Button>
             </div>
           </div>

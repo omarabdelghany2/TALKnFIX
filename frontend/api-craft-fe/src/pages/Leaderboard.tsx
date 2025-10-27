@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Trophy, Medal, Award } from 'lucide-react';
@@ -26,6 +27,7 @@ interface LeaderboardUser {
 
 const Leaderboard = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [users, setUsers] = useState<LeaderboardUser[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,8 +43,8 @@ const Leaderboard = () => {
       setUsers(response.users);
     } catch (error: any) {
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to load leaderboard',
+        title: t('common.error'),
+        description: error.message || t('leaderboard.failedToLoad'),
         variant: 'destructive',
       });
     } finally {
@@ -69,7 +71,7 @@ const Leaderboard = () => {
       <div className="min-h-screen bg-secondary">
         <Navbar />
         <div className="container max-w-4xl mx-auto py-8">
-          <div className="text-center">Loading leaderboard...</div>
+          <div className="text-center">{t('leaderboard.loading')}</div>
         </div>
       </div>
     );
@@ -82,10 +84,10 @@ const Leaderboard = () => {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
           <Trophy className="h-8 w-8 text-yellow-500" />
-          Leaderboard
+          {t('leaderboard.title')}
         </h1>
         <p className="text-muted-foreground">
-          Top contributors on IsuueTalk ranked by reputation
+          {t('leaderboard.subtitle')}
         </p>
       </div>
 

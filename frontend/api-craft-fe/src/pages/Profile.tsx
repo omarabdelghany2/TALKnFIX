@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Navbar from "@/components/Navbar";
 import PostCard from "@/components/PostCard";
 import { Card } from "@/components/ui/card";
@@ -25,6 +26,7 @@ import BadgesList from "@/components/BadgesList";
 const Profile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [profileUser, setProfileUser] = useState<any>(null);
@@ -74,8 +76,8 @@ const Profile = () => {
       setPostStats(postsResponse.stats);
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message || "Failed to load profile",
+        title: t("common.error"),
+        description: error.message || t("profilePage.failedToLoad"),
         variant: "destructive",
       });
     } finally {
@@ -90,13 +92,13 @@ const Profile = () => {
       await usersAPI.sendFriendRequest(profileUser._id);
       setRequestSent(true);
       toast({
-        title: "Success",
-        description: "Friend request sent",
+        title: t("common.success"),
+        description: t("profilePage.friendRequestSent"),
       });
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message || "Failed to send friend request",
+        title: t("common.error"),
+        description: error.message || t("profilePage.failedToSendRequest"),
         variant: "destructive",
       });
     }
@@ -109,14 +111,14 @@ const Profile = () => {
       await usersAPI.removeFriend(profileUser._id);
       setIsFriend(false);
       toast({
-        title: "Success",
-        description: "Friend removed",
+        title: t("common.success"),
+        description: t("profilePage.friendRemoved"),
       });
       loadData();
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message || "Failed to remove friend",
+        title: t("common.error"),
+        description: error.message || t("profilePage.failedToUnfriend"),
         variant: "destructive",
       });
     }
@@ -135,7 +137,7 @@ const Profile = () => {
       <div className="min-h-screen bg-secondary">
         <Navbar onSearch={handleSearch} />
         <div className="container mx-auto px-4 py-6 text-center">
-          <p className="text-muted-foreground">Loading profile...</p>
+          <p className="text-muted-foreground">{t("profilePage.loadingProfile")}</p>
         </div>
       </div>
     );
@@ -146,7 +148,7 @@ const Profile = () => {
       <div className="min-h-screen bg-secondary">
         <Navbar onSearch={handleSearch} />
         <div className="container mx-auto px-4 py-6 text-center">
-          <p className="text-muted-foreground">User not found</p>
+          <p className="text-muted-foreground">{t("profilePage.userNotFound")}</p>
         </div>
       </div>
     );
@@ -189,24 +191,24 @@ const Profile = () => {
               {isOwnProfile ? (
                 <Button variant="outline" onClick={() => navigate("/friends")}>
                   <Settings className="h-4 w-4 mr-2" />
-                  Manage Friends
+                  {t("profilePage.friends")}
                 </Button>
               ) : (
                 <>
                   {isFriend ? (
                     <Button variant="outline" onClick={handleRemoveFriend}>
                       <UserCheck className="h-4 w-4 mr-2" />
-                      Friends
+                      {t("profilePage.unfriend")}
                     </Button>
                   ) : requestSent ? (
                     <Button variant="outline" disabled>
                       <Mail className="h-4 w-4 mr-2" />
-                      Request Sent
+                      {t("profilePage.requestSent")}
                     </Button>
                   ) : (
                     <Button onClick={handleSendFriendRequest}>
                       <UserPlus className="h-4 w-4 mr-2" />
-                      Add Friend
+                      {t("profilePage.sendFriendRequest")}
                     </Button>
                   )}
                 </>
@@ -218,7 +220,7 @@ const Profile = () => {
           {profileUser.reputation !== undefined && (
             <div className="mt-6 pt-6 border-t border-border">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-lg">Reputation</h3>
+                <h3 className="font-semibold text-lg">{t("profilePage.reputation")}</h3>
                 <ReputationBadge
                   reputation={profileUser.reputation || 0}
                   level={profileUser.level || 1}
@@ -230,7 +232,7 @@ const Profile = () => {
               {profileUser.badges && profileUser.badges.length > 0 && (
                 <div className="mt-4">
                   <h4 className="font-medium text-sm mb-3 text-muted-foreground">
-                    Achievements ({profileUser.badges.length})
+                    {t("profilePage.badges")} ({profileUser.badges.length})
                   </h4>
                   <BadgesList badges={profileUser.badges} showEarnedDate />
                 </div>
@@ -245,21 +247,21 @@ const Profile = () => {
                 <FileText className="h-5 w-5 text-muted-foreground mr-1" />
               </div>
               <p className="text-2xl font-bold">{userPosts.length}</p>
-              <p className="text-sm text-muted-foreground">Posts</p>
+              <p className="text-sm text-muted-foreground">{t("profilePage.posts")}</p>
             </div>
             <div className="text-center">
               <div className="flex items-center justify-center mb-1">
                 <ThumbsUp className="h-5 w-5 text-muted-foreground mr-1" />
               </div>
               <p className="text-2xl font-bold">{postStats?.totalReactions || 0}</p>
-              <p className="text-sm text-muted-foreground">Reactions</p>
+              <p className="text-sm text-muted-foreground">{t("leaderboard.reactions")}</p>
             </div>
             <div className="text-center">
               <div className="flex items-center justify-center mb-1">
                 <MessageCircle className="h-5 w-5 text-muted-foreground mr-1" />
               </div>
               <p className="text-2xl font-bold">{postStats?.totalComments || 0}</p>
-              <p className="text-sm text-muted-foreground">Comments</p>
+              <p className="text-sm text-muted-foreground">{t("leaderboard.comments")}</p>
             </div>
           </div>
         </Card>
@@ -268,7 +270,7 @@ const Profile = () => {
         <Tabs defaultValue="posts" className="w-full">
           <TabsList className="grid w-full grid-cols-1 mb-6">
             <TabsTrigger value="posts">
-              Posts
+              {t("profilePage.posts")}
               <Badge variant="secondary" className="ml-2">
                 {userPosts.length}
               </Badge>
@@ -281,9 +283,7 @@ const Profile = () => {
                 <Card className="p-8 text-center">
                   <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                   <p className="text-muted-foreground">
-                    {isOwnProfile
-                      ? "You haven't posted anything yet"
-                      : "This user hasn't posted anything yet"}
+                    {t("profilePage.noPosts")}
                   </p>
                   {isOwnProfile && (
                     <Button
