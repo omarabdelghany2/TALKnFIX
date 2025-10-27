@@ -293,13 +293,17 @@ const PostDetail = () => {
             {post.images && post.images.length > 0 && (
               <div className="grid gap-2 mb-4 bg-gray-100 dark:bg-gray-900 rounded-lg p-2">
                 {post.images.map((img: string, index: number) => (
-                  <img
+                  <div
                     key={index}
-                    src={img.startsWith('http') ? img : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${img}`}
-                    alt={`Post image ${index + 1}`}
-                    className="rounded-lg w-full object-contain max-h-[600px] cursor-pointer hover:opacity-95 transition-opacity"
+                    className="relative w-full h-[400px] md:h-[500px] bg-black rounded-lg overflow-hidden cursor-pointer hover:opacity-95 transition-opacity flex items-center justify-center"
                     onClick={() => window.open(img.startsWith('http') ? img : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${img}`, '_blank')}
-                  />
+                  >
+                    <img
+                      src={img.startsWith('http') ? img : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${img}`}
+                      alt={`Post image ${index + 1}`}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
                 ))}
               </div>
             )}
