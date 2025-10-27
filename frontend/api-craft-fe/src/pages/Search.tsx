@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Navbar from "@/components/Navbar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 const Search = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [results, setResults] = useState<any[]>([]);
@@ -54,8 +56,8 @@ const Search = () => {
       setResults(response.users || []);
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message || "Failed to search users",
+        title: t("common.error"),
+        description: error.message || t("search.failedToSearch"),
         variant: "destructive",
       });
     } finally {
@@ -73,14 +75,14 @@ const Search = () => {
       await usersAPI.sendFriendRequest(userId);
       setSentRequests(new Set([...sentRequests, userId]));
       toast({
-        title: "Success",
-        description: "Friend request sent",
+        title: t("common.success"),
+        description: t("search.friendRequestSent"),
       });
       loadCurrentUser(); // Refresh to update friend status
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message || "Failed to send friend request",
+        title: t("common.error"),
+        description: error.message || t("search.failedToSend"),
         variant: "destructive",
       });
     }
@@ -100,17 +102,17 @@ const Search = () => {
       
       <div className="container mx-auto px-4 py-6 max-w-3xl">
         <Card className="p-6 mb-6">
-          <h1 className="text-2xl font-bold mb-4">Search Users</h1>
+          <h1 className="text-2xl font-bold mb-4">{t("search.searchUsers")}</h1>
           <form onSubmit={handleSearch} className="flex space-x-2">
             <Input
-              placeholder="Search by username or name..."
+              placeholder={t("search.searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="flex-1"
             />
             <Button type="submit" disabled={isLoading}>
               <SearchIcon className="h-4 w-4 mr-2" />
-              Search
+              {t("search.search")}
             </Button>
           </form>
         </Card>
@@ -118,12 +120,12 @@ const Search = () => {
         <div className="space-y-3">
           {isLoading ? (
             <Card className="p-8 text-center">
-              <p className="text-muted-foreground">Searching...</p>
+              <p className="text-muted-foreground">{t("search.searching")}</p>
             </Card>
           ) : results.length === 0 ? (
             searchQuery && (
               <Card className="p-8 text-center">
-                <p className="text-muted-foreground">No users found</p>
+                <p className="text-muted-foreground">{t("search.noUsersFound")}</p>
               </Card>
             )
           ) : (
@@ -148,11 +150,11 @@ const Search = () => {
                       {isFriend(user._id) ? (
                         <Button variant="outline" size="sm" disabled>
                           <UserCheck className="h-4 w-4 mr-2" />
-                          Friends
+                          {t("search.friends")}
                         </Button>
                       ) : hasPendingRequest(user._id) ? (
                         <Button variant="outline" size="sm" disabled>
-                          Request Sent
+                          {t("search.requestSent")}
                         </Button>
                       ) : (
                         <Button
@@ -160,7 +162,7 @@ const Search = () => {
                           onClick={() => handleSendRequest(user._id)}
                         >
                           <UserPlus className="h-4 w-4 mr-2" />
-                          Add Friend
+                          {t("search.addFriend")}
                         </Button>
                       )}
                     </div>

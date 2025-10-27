@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,7 @@ import Navbar from '@/components/Navbar';
 const AdvancedSearch = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { toast } = useToast();
 
   // Search filters state
@@ -64,8 +66,8 @@ const AdvancedSearch = () => {
       setSearchParams(newParams);
     } catch (error: any) {
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to search posts',
+        title: t('common.error'),
+        description: error.message || t('advancedSearch.failedToSearch'),
         variant: 'destructive',
       });
     } finally {
@@ -102,10 +104,10 @@ const AdvancedSearch = () => {
         <div className="mb-6">
           <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
             <Search className="h-8 w-8" />
-            Advanced Search
+            {t('advancedSearch.title')}
           </h1>
           <p className="text-muted-foreground">
-            Find posts with powerful filters
+            {t('advancedSearch.subtitle')}
           </p>
         </div>
 
@@ -114,10 +116,10 @@ const AdvancedSearch = () => {
           <div className="space-y-4">
             {/* Keyword Search */}
             <div>
-              <Label htmlFor="keyword">Keywords</Label>
+              <Label htmlFor="keyword">{t('advancedSearch.keywords')}</Label>
               <Input
                 id="keyword"
-                placeholder="Search in titles and content..."
+                placeholder={t('advancedSearch.keywordsPlaceholder')}
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -127,10 +129,10 @@ const AdvancedSearch = () => {
             <div className="grid md:grid-cols-2 gap-4">
               {/* Tags */}
               <div>
-                <Label htmlFor="tags">Tags (comma-separated)</Label>
+                <Label htmlFor="tags">{t('advancedSearch.tags')}</Label>
                 <Input
                   id="tags"
-                  placeholder="react, nodejs, typescript"
+                  placeholder={t('advancedSearch.tagsPlaceholder')}
                   value={tags}
                   onChange={(e) => setTags(e.target.value)}
                 />
@@ -138,10 +140,10 @@ const AdvancedSearch = () => {
 
               {/* Author */}
               <div>
-                <Label htmlFor="author">Author Username</Label>
+                <Label htmlFor="author">{t('advancedSearch.author')}</Label>
                 <Input
                   id="author"
-                  placeholder="username"
+                  placeholder={t('advancedSearch.authorPlaceholder')}
                   value={author}
                   onChange={(e) => setAuthor(e.target.value)}
                 />
@@ -151,7 +153,7 @@ const AdvancedSearch = () => {
             <div className="grid md:grid-cols-3 gap-4">
               {/* Date From */}
               <div>
-                <Label htmlFor="dateFrom">Date From</Label>
+                <Label htmlFor="dateFrom">{t('advancedSearch.dateFrom')}</Label>
                 <Input
                   id="dateFrom"
                   type="date"
@@ -162,7 +164,7 @@ const AdvancedSearch = () => {
 
               {/* Date To */}
               <div>
-                <Label htmlFor="dateTo">Date To</Label>
+                <Label htmlFor="dateTo">{t('advancedSearch.dateTo')}</Label>
                 <Input
                   id="dateTo"
                   type="date"
@@ -173,7 +175,7 @@ const AdvancedSearch = () => {
 
               {/* Min Reactions */}
               <div>
-                <Label htmlFor="minReactions">Min Reactions</Label>
+                <Label htmlFor="minReactions">{t('advancedSearch.minReactions')}</Label>
                 <Input
                   id="minReactions"
                   type="number"
@@ -187,17 +189,17 @@ const AdvancedSearch = () => {
 
             {/* Sort By */}
             <div>
-              <Label htmlFor="sortBy">Sort By</Label>
+              <Label htmlFor="sortBy">{t('advancedSearch.sortBy')}</Label>
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger id="sortBy">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="newest">Newest First</SelectItem>
-                  <SelectItem value="oldest">Oldest First</SelectItem>
-                  <SelectItem value="mostReactions">Most Reactions</SelectItem>
-                  <SelectItem value="mostComments">Most Comments</SelectItem>
-                  {keyword && <SelectItem value="relevance">Most Relevant</SelectItem>}
+                  <SelectItem value="newest">{t('advancedSearch.newest')}</SelectItem>
+                  <SelectItem value="oldest">{t('advancedSearch.oldest')}</SelectItem>
+                  <SelectItem value="mostReactions">{t('advancedSearch.mostReactions')}</SelectItem>
+                  <SelectItem value="mostComments">{t('advancedSearch.mostComments')}</SelectItem>
+                  {keyword && <SelectItem value="relevance">{t('advancedSearch.mostRelevant')}</SelectItem>}
                 </SelectContent>
               </Select>
             </div>
@@ -206,11 +208,11 @@ const AdvancedSearch = () => {
             <div className="flex gap-2 pt-4">
               <Button onClick={handleSearch} className="flex-1" disabled={loading}>
                 <Search className="h-4 w-4 mr-2" />
-                {loading ? 'Searching...' : 'Search'}
+                {loading ? t('advancedSearch.searching') : t('advancedSearch.search')}
               </Button>
               <Button variant="outline" onClick={handleClearFilters}>
                 <X className="h-4 w-4 mr-2" />
-                Clear
+                {t('advancedSearch.clear')}
               </Button>
             </div>
           </div>
@@ -221,14 +223,14 @@ const AdvancedSearch = () => {
           <div>
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-xl font-semibold">
-                Search Results
+                {t('advancedSearch.searchResults')}
                 {!loading && <span className="text-muted-foreground ml-2">({posts.length})</span>}
               </h2>
             </div>
 
             {loading ? (
               <Card className="p-8 text-center text-muted-foreground">
-                Searching...
+                {t('advancedSearch.searching')}
               </Card>
             ) : posts.length > 0 ? (
               <div className="space-y-4">
@@ -245,8 +247,8 @@ const AdvancedSearch = () => {
             ) : (
               <Card className="p-8 text-center text-muted-foreground">
                 <Filter className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p className="text-lg mb-2">No posts found</p>
-                <p className="text-sm">Try adjusting your search filters</p>
+                <p className="text-lg mb-2">{t('advancedSearch.noPostsFound')}</p>
+                <p className="text-sm">{t('advancedSearch.tryAdjusting')}</p>
               </Card>
             )}
           </div>
@@ -255,7 +257,7 @@ const AdvancedSearch = () => {
         {!hasSearched && (
           <Card className="p-12 text-center text-muted-foreground">
             <Search className="h-16 w-16 mx-auto mb-4 opacity-50" />
-            <p className="text-lg">Enter your search criteria above and click Search</p>
+            <p className="text-lg">{t('advancedSearch.enterCriteria')}</p>
           </Card>
         )}
       </div>
