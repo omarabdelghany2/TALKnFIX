@@ -23,7 +23,7 @@ router.get('/feed', getFeed);
 router.get('/search', searchPosts);
 router.get('/user/:userId', getUserPosts);
 router.get('/:id', getPost);
-router.put('/:id', updatePost);
+router.put('/:id', upload.array('images', 5), updatePost);
 router.delete('/:id', deletePost);
 
 // Hide/unhide posts

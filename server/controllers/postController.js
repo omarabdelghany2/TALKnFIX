@@ -176,7 +176,34 @@ exports.updatePost = async (req, res) => {
       });
     }
 
-    post = await Post.findByIdAndUpdate(req.params.id, req.body, {
+    // Handle image updates
+    let images = [];
+
+    // Keep existing images if provided
+    if (req.body.existingImages) {
+      if (Array.isArray(req.body.existingImages)) {
+        images = req.body.existingImages;
+      } else {
+        images = [req.body.existingImages];
+      }
+    }
+
+    // Add new uploaded images
+    if (req.files && req.files.length > 0) {
+      const newImages = req.files.map(file => `/uploads/${file.filename}`);
+      images = [...images, ...newImages];
+    }
+
+    // Prepare update data
+    const updateData = {
+      title: req.body.title,
+      content: req.body.content,
+      visibility: req.body.visibility,
+      tags: req.body.tags || [],
+      images: images
+    };
+
+    post = await Post.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
       runValidators: true
     }).populate('author', 'username fullName avatar');

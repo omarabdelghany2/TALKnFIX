@@ -248,7 +248,7 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden }: PostCardPr
             <DropdownMenuContent align="end">
               {isOwnPost ? (
                 <>
-                  <DropdownMenuItem onClick={() => navigate(`/post/${post._id}`)}>
+                  <DropdownMenuItem onClick={() => navigate(`/post/${post._id}/edit`)}>
                     <Edit className="h-4 w-4 mr-2" />
                     {t("postCard.editPost")}
                   </DropdownMenuItem>

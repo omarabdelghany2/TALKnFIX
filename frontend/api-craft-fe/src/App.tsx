@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Auth from "./pages/Auth";
 import Feed from "./pages/Feed";
 import PostDetail from "./pages/PostDetail";
+import EditPost from "./pages/EditPost";
 import Friends from "./pages/Friends";
 import Search from "./pages/Search";
 import Profile from "./pages/Profile";
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/feed" element={<Feed />} />
           <Route path="/post/:id" element={<PostDetail />} />
+          <Route path="/post/:id/edit" element={<EditPost />} />
           <Route path="/friends" element={<Friends />} />
           <Route path="/search" element={<Search />} />
           <Route path="/advanced-search" element={<AdvancedSearch />} />
