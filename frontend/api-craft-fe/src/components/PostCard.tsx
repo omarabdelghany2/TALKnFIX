@@ -69,6 +69,14 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden }: PostCardPr
   const [currentReaction, setCurrentReaction] = useState(post.userReaction || null);
   const [reactionCount, setReactionCount] = useState(post.reactionsCount);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+  const [showFullContent, setShowFullContent] = useState(false);
+
+  // Check if content is long (more than 300 characters of text)
+  const contentLength = post.content.replace(/<[^>]*>/g, '').length;
+  const isLongContent = contentLength > 300;
 
   // Get current user ID
   useEffect(() => {
@@ -149,6 +157,54 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden }: PostCardPr
     }
   };
 
+  // Carousel navigation handlers
+  const goToNextImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (post.images && currentImageIndex < post.images.length - 1) {
+      setCurrentImageIndex(prev => prev + 1);
+    }
+  };
+
+  const goToPrevImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (currentImageIndex > 0) {
+      setCurrentImageIndex(prev => prev - 1);
+    }
+  };
+
+  const goToImage = (index: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentImageIndex(index);
+  };
+
+  // Touch handlers for swipe on mobile
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (isLeftSwipe && post.images && currentImageIndex < post.images.length - 1) {
+      setCurrentImageIndex(prev => prev + 1);
+    }
+
+    if (isRightSwipe && currentImageIndex > 0) {
+      setCurrentImageIndex(prev => prev - 1);
+    }
+
+    setTouchStart(0);
+    setTouchEnd(0);
+  };
+
   return (
     <Card className="overflow-hidden hover:shadow-md transition-shadow">
       {/* Header */}
@@ -216,12 +272,25 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden }: PostCardPr
       </div>
 
       {/* Content */}
-      <div className="px-4 pb-2 cursor-pointer" onClick={() => onPostClick?.(post._id)}>
+      <div className="px-4 pb-2">
         <h3 className="font-semibold text-lg mb-1">{post.title}</h3>
         <div
-          className="prose prose-sm max-w-none text-foreground line-clamp-6 md:line-clamp-4 post-content"
+          className={`prose prose-sm max-w-none text-foreground post-content ${!showFullContent && isLongContent ? 'line-clamp-4' : ''}`}
           dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
         />
+
+        {/* Read More Button */}
+        {isLongContent && !showFullContent && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onPostClick?.(post._id);
+            }}
+            className="text-primary hover:underline text-sm font-medium mt-1"
+          >
+            {t("common.readMore", "Read More")} →
+          </button>
+        )}
 
         {/* ChatGPT-style code block styling with mobile responsiveness */}
         <style>{`
@@ -287,93 +356,84 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden }: PostCardPr
         )}
       </div>
 
-      {/* Images - LinkedIn Style */}
+      {/* Images - Instagram Style Carousel */}
       {post.images && post.images.length > 0 && (
-        <div className="w-full bg-gray-100 dark:bg-gray-900">
-          {post.images.length === 1 && (
-            <img
-              src={post.images[0].startsWith('http') ? post.images[0] : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${post.images[0]}`}
-              alt="Post image"
-              className="w-full object-contain max-h-[600px] cursor-pointer hover:opacity-95 transition-opacity"
-              onClick={(e) => {
-                e.stopPropagation();
-                window.open(post.images[0].startsWith('http') ? post.images[0] : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${post.images[0]}`, '_blank');
-              }}
-            />
-          )}
-          {post.images.length === 2 && (
-            <div className="grid grid-cols-2 gap-1">
+        <div className="relative w-full bg-gray-100 dark:bg-gray-900 select-none">
+          {/* Image Container */}
+          <div
+            className="relative overflow-hidden"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
+            <div
+              className="flex transition-transform duration-300 ease-out"
+              style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
+            >
               {post.images.map((img, index) => (
-                <img
+                <div key={index} className="w-full flex-shrink-0">
+                  <img
+                    src={img.startsWith('http') ? img : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${img}`}
+                    alt={`Post image ${index + 1}`}
+                    className="w-full object-contain max-h-[500px] bg-black"
+                    draggable={false}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Navigation Arrows (Desktop) */}
+          {post.images.length > 1 && (
+            <>
+              {currentImageIndex > 0 && (
+                <button
+                  onClick={goToPrevImage}
+                  className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-all z-10"
+                  aria-label="Previous image"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+              )}
+
+              {currentImageIndex < post.images.length - 1 && (
+                <button
+                  onClick={goToNextImage}
+                  className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-all z-10"
+                  aria-label="Next image"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              )}
+            </>
+          )}
+
+          {/* Dots Indicator */}
+          {post.images.length > 1 && (
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+              {post.images.map((_, index) => (
+                <button
                   key={index}
-                  src={img.startsWith('http') ? img : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${img}`}
-                  alt={`Post image ${index + 1}`}
-                  className="w-full object-contain max-h-[400px] cursor-pointer hover:opacity-95 transition-opacity bg-black"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    window.open(img.startsWith('http') ? img : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${img}`, '_blank');
-                  }}
+                  onClick={(e) => goToImage(index, e)}
+                  className={`transition-all rounded-full ${
+                    index === currentImageIndex
+                      ? 'bg-white w-2 h-2'
+                      : 'bg-white/60 w-1.5 h-1.5 hover:bg-white/80'
+                  }`}
+                  aria-label={`Go to image ${index + 1}`}
                 />
               ))}
             </div>
           )}
-          {post.images.length === 3 && (
-            <div className="grid grid-cols-2 gap-1">
-              <img
-                src={post.images[0].startsWith('http') ? post.images[0] : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${post.images[0]}`}
-                alt="Post image 1"
-                className="w-full object-contain max-h-[500px] row-span-2 cursor-pointer hover:opacity-95 transition-opacity bg-black"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  window.open(post.images[0].startsWith('http') ? post.images[0] : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${post.images[0]}`, '_blank');
-                }}
-              />
-              <img
-                src={post.images[1].startsWith('http') ? post.images[1] : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${post.images[1]}`}
-                alt="Post image 2"
-                className="w-full object-contain max-h-[250px] cursor-pointer hover:opacity-95 transition-opacity bg-black"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  window.open(post.images[1].startsWith('http') ? post.images[1] : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${post.images[1]}`, '_blank');
-                }}
-              />
-              <img
-                src={post.images[2].startsWith('http') ? post.images[2] : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${post.images[2]}`}
-                alt="Post image 3"
-                className="w-full object-contain max-h-[250px] cursor-pointer hover:opacity-95 transition-opacity bg-black"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  window.open(post.images[2].startsWith('http') ? post.images[2] : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${post.images[2]}`, '_blank');
-                }}
-              />
-            </div>
-          )}
-          {post.images.length >= 4 && (
-            <div className="grid grid-cols-2 gap-1">
-              {post.images.slice(0, 4).map((img, index) => (
-                <div key={index} className="relative bg-black">
-                  <img
-                    src={img.startsWith('http') ? img : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${img}`}
-                    alt={`Post image ${index + 1}`}
-                    className="w-full object-contain max-h-[300px] cursor-pointer hover:opacity-95 transition-opacity"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      window.open(img.startsWith('http') ? img : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${img}`, '_blank');
-                    }}
-                  />
-                  {index === 3 && post.images.length > 4 && (
-                    <div
-                      className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center cursor-pointer hover:bg-opacity-70 transition-all"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onPostClick?.(post._id);
-                      }}
-                    >
-                      <span className="text-white text-3xl font-bold">+{post.images.length - 4}</span>
-                    </div>
-                  )}
-                </div>
-              ))}
+
+          {/* Image Counter (Top Right) */}
+          {post.images.length > 1 && (
+            <div className="absolute top-3 right-3 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
+              {currentImageIndex + 1} / {post.images.length}
             </div>
           )}
         </div>
