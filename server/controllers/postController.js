@@ -176,15 +176,24 @@ exports.updatePost = async (req, res) => {
       });
     }
 
+    // Handle tags (support both tags and tags[] from FormData)
+    let tags = [];
+    if (req.body['tags[]']) {
+      tags = Array.isArray(req.body['tags[]']) ? req.body['tags[]'] : [req.body['tags[]']];
+    } else if (req.body.tags) {
+      tags = Array.isArray(req.body.tags) ? req.body.tags : [req.body.tags];
+    }
+
     // Handle image updates
     let images = [];
 
-    // Keep existing images if provided
-    if (req.body.existingImages) {
-      if (Array.isArray(req.body.existingImages)) {
-        images = req.body.existingImages;
+    // Keep existing images if provided (support existingImages[] from FormData)
+    const existingImagesKey = req.body['existingImages[]'] || req.body.existingImages;
+    if (existingImagesKey) {
+      if (Array.isArray(existingImagesKey)) {
+        images = existingImagesKey;
       } else {
-        images = [req.body.existingImages];
+        images = [existingImagesKey];
       }
     }
 
@@ -199,7 +208,7 @@ exports.updatePost = async (req, res) => {
       title: req.body.title,
       content: req.body.content,
       visibility: req.body.visibility,
-      tags: req.body.tags || [],
+      tags: tags,
       images: images
     };
 

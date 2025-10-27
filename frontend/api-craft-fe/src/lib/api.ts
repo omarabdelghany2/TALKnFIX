@@ -87,7 +87,7 @@ export const postsAPI = {
   update: (id: string, data: any) =>
     apiCall(`/posts/${id}`, {
       method: 'PUT',
-      body: JSON.stringify(data),
+      body: data instanceof FormData ? data : JSON.stringify(data),
     }),
 
   delete: (id: string) =>

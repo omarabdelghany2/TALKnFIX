@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Navbar from "@/components/Navbar";
 import { Card } from "@/components/ui/card";
@@ -32,6 +32,7 @@ const reactionIcons = {
 const PostDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation();
   const { toast } = useToast();
   const [post, setPost] = useState<any>(null);
@@ -55,7 +56,7 @@ const PostDetail = () => {
       loadCurrentUser();
       checkReaction();
     }
-  }, [id]);
+  }, [id, location.search]);
 
   const loadCurrentUser = async () => {
     try {

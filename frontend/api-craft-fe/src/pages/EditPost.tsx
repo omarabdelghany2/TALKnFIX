@@ -151,7 +151,8 @@ const EditPost = () => {
         description: "Post updated successfully",
       });
 
-      navigate(`/post/${id}`);
+      // Navigate with timestamp to force re-fetch
+      navigate(`/post/${id}?updated=${Date.now()}`);
     } catch (error: any) {
       toast({
         title: t("common.error"),
