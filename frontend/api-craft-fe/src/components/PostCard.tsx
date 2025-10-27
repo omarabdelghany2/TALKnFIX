@@ -359,23 +359,23 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden }: PostCardPr
       {/* Images - Instagram Style Carousel */}
       {post.images && post.images.length > 0 && (
         <div className="relative w-full bg-gray-100 dark:bg-gray-900 select-none">
-          {/* Image Container */}
+          {/* Image Container with fixed height */}
           <div
-            className="relative overflow-hidden"
+            className="relative overflow-hidden h-[400px] md:h-[500px]"
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
           >
             <div
-              className="flex transition-transform duration-300 ease-out"
+              className="flex h-full transition-transform duration-300 ease-out"
               style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
             >
               {post.images.map((img, index) => (
-                <div key={index} className="w-full flex-shrink-0">
+                <div key={index} className="w-full h-full flex-shrink-0 flex items-center justify-center bg-black">
                   <img
                     src={img.startsWith('http') ? img : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${img}`}
                     alt={`Post image ${index + 1}`}
-                    className="w-full object-contain max-h-[500px] bg-black"
+                    className="w-full h-full object-contain"
                     draggable={false}
                   />
                 </div>
