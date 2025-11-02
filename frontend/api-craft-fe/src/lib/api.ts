@@ -118,8 +118,17 @@ export const postsAPI = {
     return handleResponse(response);
   },
 
-  search: async (query: string) => {
-    const response = await fetch(`${API_URL}/api/posts/search?q=${encodeURIComponent(query)}`, {
+  search: async (params: any) => {
+    const queryString = new URLSearchParams(params).toString();
+    const response = await fetch(`${API_URL}/api/posts/search?${queryString}`, {
+      method: 'GET',
+      headers: createHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  getUserPosts: async (userId: string) => {
+    const response = await fetch(`${API_URL}/api/posts/user/${userId}`, {
       method: 'GET',
       headers: createHeaders(),
     });
@@ -195,6 +204,46 @@ export const usersAPI = {
 
   getFriends: async () => {
     const response = await fetch(`${API_URL}/api/users/friends`, {
+      method: 'GET',
+      headers: createHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  sendFriendRequest: async (userId: string) => {
+    const response = await fetch(`${API_URL}/api/users/friend-request/${userId}`, {
+      method: 'POST',
+      headers: createHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  acceptFriendRequest: async (userId: string) => {
+    const response = await fetch(`${API_URL}/api/users/friend-request/${userId}/accept`, {
+      method: 'POST',
+      headers: createHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  rejectFriendRequest: async (userId: string) => {
+    const response = await fetch(`${API_URL}/api/users/friend-request/${userId}/reject`, {
+      method: 'POST',
+      headers: createHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  removeFriend: async (userId: string) => {
+    const response = await fetch(`${API_URL}/api/users/friends/${userId}`, {
+      method: 'DELETE',
+      headers: createHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  getLeaderboard: async (limit: number = 50) => {
+    const response = await fetch(`${API_URL}/api/users/leaderboard?limit=${limit}`, {
       method: 'GET',
       headers: createHeaders(),
     });
