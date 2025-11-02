@@ -10,8 +10,8 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
   },
   preview: {
-    host: "::",
-    port: 4173,
+    host: "0.0.0.0",
+    port: process.env.PORT ? parseInt(process.env.PORT) : 4173,
     strictPort: false,
     allowedHosts: [
       "talknfix-production-21b8.up.railway.app",
