@@ -18,7 +18,8 @@ app.use(cors({
     'http://localhost:3000',
     'http://localhost:5173',
     'http://localhost:8080',
-    'https://talknfix-production-21b8.up.railway.app'
+    'https://talknfix-production-21b8.up.railway.app',
+    'https://talknfix-production-4d3f.up.railway.app'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
