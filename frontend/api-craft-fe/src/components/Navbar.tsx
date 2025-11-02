@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Bell, Search, LogOut, User, Users, Trophy, Filter, Menu, X } from "lucide-react";
+import { Bell, Search, LogOut, User, Users, Trophy, Filter, Menu, X, LayoutDashboard } from "lucide-react";
 import { removeToken } from "@/lib/api";
 import logo from "@/assets/talknfix-logo.png";
 import { useState } from "react";
@@ -41,7 +41,7 @@ const Navbar = ({ onSearch }: NavbarProps) => {
 
   const navLinks = [
     { to: "/feed", icon: <Search className="mr-2 h-4 w-4" />, label: t("nav.feed") },
-    { to: "/dashboard", icon: <Trophy className="mr-2 h-4 w-4" />, label: t("nav.dashboard") },
+    { to: "/dashboard", icon: <LayoutDashboard className="mr-2 h-4 w-4" />, label: t("nav.dashboard") },
     { to: "/friends", icon: <Users className="mr-2 h-4 w-4" />, label: t("nav.friends"), badge: 0 },
     { to: "/leaderboard", icon: <Trophy className="mr-2 h-4 w-4" />, label: t("nav.leaderboard") },
     { to: "/advanced-search", icon: <Filter className="mr-2 h-4 w-4" />, label: t("nav.advancedSearch") },
@@ -83,7 +83,7 @@ const Navbar = ({ onSearch }: NavbarProps) => {
               >
                 <Link to={link.to}>
                   {link.icon}
-                  <span className="hidden lg:inline">{link.label}</span>
+                  <span className="hidden md:inline">{link.label}</span>
                   {link.badge !== undefined && link.badge > 0 && (
                     <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">
                       {link.badge}
