@@ -28,8 +28,8 @@ app.use(cors({
   optionsSuccessStatus: 204
 }));
 
-// Handle preflight requests
-app.options('*', cors());
+// Handle preflight requests (Express 5.x syntax)
+app.options('/*', cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
