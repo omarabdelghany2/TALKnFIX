@@ -13,6 +13,11 @@ export default defineConfig(({ mode }) => ({
     host: "0.0.0.0",
     port: 4173,
     strictPort: false,
+    allowedHosts: [
+      "talknfix-production-21b8.up.railway.app",
+      "localhost",
+      ".railway.app"
+    ],
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
