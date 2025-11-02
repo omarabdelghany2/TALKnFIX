@@ -9,6 +9,10 @@ import Feed from "./pages/Feed";
 import PostDetail from "./pages/PostDetail";
 import Dashboard from "./pages/Dashboard";
 import ProjectDetail from "./pages/ProjectDetail";
+import Friends from "./pages/Friends";
+import Leaderboard from "./pages/Leaderboard";
+import Profile from "./pages/Profile";
+import AdvancedSearch from "./pages/AdvancedSearch";
 import NotFound from "./pages/NotFound";
 import "@/i18n/config";
 
@@ -27,6 +31,10 @@ const App = () => (
           <Route path="/post/:id" element={<ProtectedRoute><PostDetail /></ProtectedRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/project/:id" element={<ProtectedRoute><ProjectDetail /></ProtectedRoute>} />
+          <Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />
+          <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/advanced-search" element={<ProtectedRoute><AdvancedSearch /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
