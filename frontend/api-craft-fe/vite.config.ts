@@ -9,6 +9,16 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
+  preview: {
+    host: "::",
+    port: 4173,
+    strictPort: false,
+    allowedHosts: [
+      "talknfix-production-21b8.up.railway.app",
+      ".railway.app", // Allow all Railway domains
+      "localhost",
+    ],
+  },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
     alias: {
