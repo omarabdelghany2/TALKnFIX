@@ -1,12 +1,12 @@
 # Ignore old frontend backup
 old frontend/
 
-# Ignore node_modules
+# Ignore node_modules (they will be installed during build)
 **/node_modules/
 
 # Ignore environment files
 **/.env
-**/.env.*
+**/.env.local
 !**/.env.example
 
 # Ignore build artifacts
@@ -21,3 +21,7 @@ old frontend/
 
 # Ignore git
 .git/
+
+# Ignore other unnecessary files
+**/.vite/
+**/bun.lockb
