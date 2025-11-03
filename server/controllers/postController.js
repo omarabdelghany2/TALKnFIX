@@ -38,8 +38,8 @@ exports.createPost = async (req, res) => {
   }
 };
 
-// @desc    Get all posts for timeline/feed
-// @route   GET /api/posts/feed
+// @desc    Get all posts for timeline/feed (with pagination)
+// @route   GET /api/posts/feed?page=1&limit=10
 // @access  Private
 exports.getFeed = async (req, res) => {
   try {
@@ -52,26 +52,39 @@ exports.getFeed = async (req, res) => {
       });
     }
 
+    // Pagination parameters
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
     // Ensure arrays exist
     const hiddenPosts = user.hiddenPosts || [];
     const friends = user.friends || [];
 
-    // Get posts that are:
-    // 1. Public posts
-    // 2. Private posts from friends
-    // 3. Your own posts (both public and private)
-    // Exclude hidden posts
-    const posts = await Post.find({
+    // Build query
+    const query = {
       _id: { $nin: hiddenPosts },
       $or: [
         { visibility: 'public' },
         { visibility: 'private', author: { $in: friends } },
         { author: req.user.id } // Show all your own posts
       ]
-    })
+    };
+
+    // Get total count for pagination metadata
+    const totalPosts = await Post.countDocuments(query);
+    const totalPages = Math.ceil(totalPosts / limit);
+
+    // Get posts that are:
+    // 1. Public posts
+    // 2. Private posts from friends
+    // 3. Your own posts (both public and private)
+    // Exclude hidden posts
+    const posts = await Post.find(query)
       .populate('author', 'username fullName avatar')
       .sort({ createdAt: -1 }) // Sort by latest first
-      .limit(50);
+      .skip(skip)
+      .limit(limit);
 
     // Filter out posts where author failed to populate (deleted users, etc.)
     const validPosts = posts.filter(post => post.author !== null);
@@ -93,8 +106,15 @@ exports.getFeed = async (req, res) => {
 
     res.json({
       success: true,
-      count: postsWithReactions.length,
-      posts: postsWithReactions
+      posts: postsWithReactions,
+      pagination: {
+        currentPage: page,
+        totalPages: totalPages,
+        totalPosts: totalPosts,
+        postsPerPage: limit,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1
+      }
     });
   } catch (error) {
     res.status(500).json({

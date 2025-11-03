@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Bell, Search, LogOut, User, Users, Trophy, Filter, Menu, X, LayoutDashboard } from "lucide-react";
 import { removeToken } from "@/lib/api";
 import logo from "@/assets/talknfix-logo.png";
+import talk51Logo from "@/assets/51TalkLogo.png.webp";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -52,10 +53,14 @@ const Navbar = ({ onSearch }: NavbarProps) => {
     <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
-          <Link to="/feed" className="flex items-center gap-2">
-            <img src={logo} alt="TalkNFix" className="h-12 md:h-14 w-auto" />
-          </Link>
+          {/* Logos */}
+          <div className="flex items-center gap-3">
+            <img src={talk51Logo} alt="51Talk" className="h-8 md:h-10 w-auto" />
+            <div className="hidden sm:block h-8 w-px bg-border"></div>
+            <Link to="/feed" className="flex items-center">
+              <img src={logo} alt="TalkNFix" className="h-12 md:h-14 w-auto" />
+            </Link>
+          </div>
 
           {/* Desktop Search */}
           <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-md mx-8">

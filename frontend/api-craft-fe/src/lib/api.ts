@@ -76,8 +76,8 @@ export const authAPI = {
 
 // Posts API
 export const postsAPI = {
-  getFeed: async () => {
-    const response = await fetch(`${API_URL}/api/posts/feed`, {
+  getFeed: async (page: number = 1, limit: number = 10) => {
+    const response = await fetch(`${API_URL}/api/posts/feed?page=${page}&limit=${limit}`, {
       method: 'GET',
       headers: createHeaders(),
     });

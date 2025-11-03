@@ -8,7 +8,7 @@ import { authAPI, setToken } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import logo from "@/assets/talknfix-logo.png";
-import talk51Logo from "@/assets/51TalkLogo.png.webp";
+import Footer from "@/components/Footer";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -173,14 +173,7 @@ const Auth = () => {
         </Tabs>
       </Card>
       </div>
-      <footer className="w-full py-6">
-        <div className="flex flex-col items-center gap-4">
-          <img src={talk51Logo} alt="51Talk" className="h-12" />
-          <p className="text-center text-sm text-muted-foreground">
-            Developed and created by the AIBP team in Cairo region
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };
