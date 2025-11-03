@@ -174,11 +174,11 @@ export const commentsAPI = {
 
 // Reactions API
 export const reactionsAPI = {
-  toggle: async (postId: string, type: string) => {
+  toggle: async (data: { postId: string; type: 'like' | 'upvote' | 'helpful' | 'insightful' }) => {
     const response = await fetch(`${API_URL}/api/reactions`, {
       method: 'POST',
       headers: createHeaders(),
-      body: JSON.stringify({ postId, type }),
+      body: JSON.stringify(data),
     });
     return handleResponse(response);
   },

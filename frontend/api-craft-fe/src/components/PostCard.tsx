@@ -97,16 +97,31 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden, currentUserI
   const handleReaction = async (type: string, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
-      const result = await reactionsAPI.toggle(post._id, type);
-      const newReaction = result.reaction;
-      setReactions({
-        count: newReaction ? reactions.count + (reactions.userReaction ? 0 : 1) : reactions.count - 1,
-        userReaction: newReaction,
-      });
+      const response = await reactionsAPI.toggle({ postId: post._id, type: type as any });
+
+      if (!response.reacted) {
+        // Reaction removed
+        setReactions({
+          count: Math.max(0, reactions.count - 1),
+          userReaction: null,
+        });
+      } else if (response.message === "Reaction added") {
+        // New reaction added
+        setReactions({
+          count: reactions.count + 1,
+          userReaction: type,
+        });
+      } else {
+        // Reaction type changed (count stays the same)
+        setReactions({
+          count: reactions.count,
+          userReaction: type,
+        });
+      }
     } catch (error: any) {
       toast({
         title: t("common.error"),
-        description: error.message,
+        description: error.message || t("postCard.failedToReact"),
         variant: "destructive",
       });
     }
