@@ -235,7 +235,7 @@ export const usersAPI = {
   },
 
   removeFriend: async (userId: string) => {
-    const response = await fetch(`${API_URL}/api/users/friends/${userId}`, {
+    const response = await fetch(`${API_URL}/api/users/${userId}/friend`, {
       method: 'DELETE',
       headers: createHeaders(),
     });
