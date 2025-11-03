@@ -9,8 +9,31 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Plus, X, Loader2, Calendar, GitCommit, Users as UsersIcon } from "lucide-react";
+import { ArrowLeft, Plus, X, Loader2, Calendar, GitCommit, Users as UsersIcon, Edit, Trash2 } from "lucide-react";
 import { projectsAPI, usersAPI, authAPI } from "@/lib/api";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { useTranslation } from "react-i18next";
@@ -31,6 +54,11 @@ const ProjectDetail = () => {
   const [updateContent, setUpdateContent] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [collaboratorDialogOpen, setCollaboratorDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editStatus, setEditStatus] = useState<"done" | "in-progress" | "future">("in-progress");
 
   const { data: currentUser } = useQuery({
     queryKey: ["currentUser"],
@@ -97,6 +125,50 @@ const ProjectDetail = () => {
     },
   });
 
+  const updateProjectMutation = useMutation({
+    mutationFn: async (data: { title: string; description: string; status: "done" | "in-progress" | "future" }) => {
+      return await projectsAPI.update(id!, data);
+    },
+    onSuccess: () => {
+      toast({ title: t("common.success"), description: t("project.projectUpdated") });
+      setEditDialogOpen(false);
+      refetch();
+    },
+    onError: (error: any) => {
+      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
+    },
+  });
+
+  const deleteProjectMutation = useMutation({
+    mutationFn: async () => {
+      return await projectsAPI.delete(id!);
+    },
+    onSuccess: () => {
+      toast({ title: t("common.success"), description: t("project.projectDeleted") });
+      navigate("/dashboard");
+    },
+    onError: (error: any) => {
+      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
+    },
+  });
+
+  const changeStatusMutation = useMutation({
+    mutationFn: async (newStatus: "done" | "in-progress" | "future") => {
+      return await projectsAPI.update(id!, {
+        title: project.title,
+        description: project.description,
+        status: newStatus,
+      });
+    },
+    onSuccess: () => {
+      toast({ title: t("common.success"), description: t("project.statusChanged") });
+      refetch();
+    },
+    onError: (error: any) => {
+      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
+    },
+  });
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
@@ -128,10 +200,29 @@ const ProjectDetail = () => {
   const status = statusConfig[project.status];
 
   // Check if current user is owner or collaborator
+  const isOwner = currentUser && project.owner._id === currentUser._id;
   const isAuthorized = currentUser && (
     project.owner._id === currentUser._id ||
     project.collaborators.some((collab) => collab._id === currentUser._id)
   );
+
+  // Function to open edit dialog with current values
+  const handleEditClick = () => {
+    setEditTitle(project.title);
+    setEditDescription(project.description);
+    setEditStatus(project.status);
+    setEditDialogOpen(true);
+  };
+
+  // Function to handle edit submit
+  const handleEditSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateProjectMutation.mutate({
+      title: editTitle,
+      description: editDescription,
+      status: editStatus,
+    });
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -160,7 +251,48 @@ const ProjectDetail = () => {
                     <span>{t("project.created")} {formatDistanceToNow(new Date(project.createdAt), { addSuffix: true })}</span>
                   </div>
                 </div>
-                <Badge className={status.className}>{status.label}</Badge>
+                <div className="flex items-center gap-2">
+                  {/* Status Dropdown for owner */}
+                  {isOwner ? (
+                    <Select
+                      value={project.status}
+                      onValueChange={(value: "done" | "in-progress" | "future") => changeStatusMutation.mutate(value)}
+                      disabled={changeStatusMutation.isPending}
+                    >
+                      <SelectTrigger className={`w-[180px] ${status.className}`}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="future">{t("project.statusFuture")}</SelectItem>
+                        <SelectItem value="in-progress">{t("project.statusInProgress")}</SelectItem>
+                        <SelectItem value="done">{t("project.statusDone")}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Badge className={status.className}>{status.label}</Badge>
+                  )}
+
+                  {/* Edit and Delete buttons for owner only */}
+                  {isOwner && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={handleEditClick}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          {t("common.edit")}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setDeleteAlertOpen(true)} className="text-destructive">
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          {t("common.delete")}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                </div>
               </div>
             </CardHeader>
             <CardContent>
@@ -340,6 +472,93 @@ const ProjectDetail = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Edit Project Dialog */}
+        <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>{t("project.editProject")}</DialogTitle>
+              <DialogDescription>{t("project.editProjectDescription")}</DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">{t("project.title")}</label>
+                <Input
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  placeholder={t("project.titlePlaceholder")}
+                  required
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">{t("project.description")}</label>
+                <Textarea
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  placeholder={t("project.descriptionPlaceholder")}
+                  rows={5}
+                  required
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">{t("project.status")}</label>
+                <Select value={editStatus} onValueChange={(value: "done" | "in-progress" | "future") => setEditStatus(value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="future">{t("project.statusFuture")}</SelectItem>
+                    <SelectItem value="in-progress">{t("project.statusInProgress")}</SelectItem>
+                    <SelectItem value="done">{t("project.statusDone")}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="outline" onClick={() => setEditDialogOpen(false)}>
+                  {t("common.cancel")}
+                </Button>
+                <Button type="submit" disabled={updateProjectMutation.isPending}>
+                  {updateProjectMutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {t("common.saving")}
+                    </>
+                  ) : (
+                    t("common.save")
+                  )}
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete Project Alert */}
+        <AlertDialog open={deleteAlertOpen} onOpenChange={setDeleteAlertOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t("project.deleteProject")}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {t("project.deleteProjectConfirm")}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => deleteProjectMutation.mutate()}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {deleteProjectMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {t("common.deleting")}
+                  </>
+                ) : (
+                  t("common.delete")
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
