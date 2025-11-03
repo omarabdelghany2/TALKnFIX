@@ -146,9 +146,15 @@ const resources = {
       },
       leaderboard: {
         title: "Leaderboard",
+        subtitle: "Top contributors on IsuueTalk ranked by reputation",
+        loading: "Loading leaderboard...",
+        failedToLoad: "Failed to load leaderboard",
         rank: "Rank",
         user: "User",
         reputation: "Reputation",
+        posts: "Posts",
+        comments: "Comments",
+        reactions: "Reactions",
       },
       search: {
         searchUsers: "Search Users",
