@@ -36,10 +36,15 @@ exports.getProjectById = async (req, res) => {
   }
 };
 
-// Get projects by user ID
+// Get projects by user ID (includes owned and collaborated projects)
 exports.getProjectsByUserId = async (req, res) => {
   try {
-    const projects = await Project.find({ owner: req.params.userId })
+    const projects = await Project.find({
+      $or: [
+        { owner: req.params.userId },
+        { collaborators: req.params.userId }
+      ]
+    })
       .populate('owner', 'username fullName avatar')
       .populate('collaborators', 'username fullName avatar')
       .populate('updates.user', 'username fullName avatar')
