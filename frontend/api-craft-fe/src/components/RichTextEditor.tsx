@@ -11,6 +11,7 @@ import {
   List,
   ListOrdered,
   Code,
+  Code2,
   Quote,
   Undo,
   Redo,
@@ -73,6 +74,15 @@ const RichTextEditor = ({ content, onChange, placeholder }: RichTextEditorProps)
           className={editor.isActive("code") ? "bg-accent" : ""}
         >
           <Code className="h-4 w-4" />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+          className={editor.isActive("codeBlock") ? "bg-accent" : ""}
+        >
+          <Code2 className="h-4 w-4" />
         </Button>
         <Button
           type="button"

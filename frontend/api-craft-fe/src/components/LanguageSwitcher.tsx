@@ -13,8 +13,8 @@ const LanguageSwitcher = () => {
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
-    // Update HTML dir attribute for RTL support
-    document.documentElement.dir = lng === "ar" ? "rtl" : "ltr";
+    // Reset to LTR for all languages
+    document.documentElement.dir = "ltr";
   };
 
   return (
@@ -28,8 +28,8 @@ const LanguageSwitcher = () => {
         <DropdownMenuItem onClick={() => changeLanguage("en")}>
           English
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => changeLanguage("ar")}>
-          العربية
+        <DropdownMenuItem onClick={() => changeLanguage("zh")}>
+          中文
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
