@@ -227,7 +227,7 @@ export const usersAPI = {
   },
 
   sendFriendRequest: async (userId: string) => {
-    const response = await fetch(`${API_URL}/api/users/friend-request/${userId}`, {
+    const response = await fetch(`${API_URL}/api/users/${userId}/friend-request`, {
       method: 'POST',
       headers: createHeaders(),
     });
