@@ -52,13 +52,13 @@ const Navbar = ({ onSearch }: NavbarProps) => {
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-between">
+        <div className="flex h-20 md:h-24 items-center justify-between">
           {/* Logos */}
           <div className="flex items-center gap-3">
-            <img src={talk51Logo} alt="51Talk" className="h-8 md:h-10 w-auto" />
-            <div className="hidden sm:block h-8 w-px bg-border"></div>
+            <img src={talk51Logo} alt="51Talk" className="h-10 md:h-12 w-auto" />
+            <div className="hidden sm:block h-10 md:h-12 w-px bg-border"></div>
             <Link to="/feed" className="flex items-center">
-              <img src={logo} alt="TalkNFix" className="h-12 md:h-14 w-auto" />
+              <img src={logo} alt="TalkNFix" className="h-16 md:h-20 w-auto" />
             </Link>
           </div>
 
