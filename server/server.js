@@ -41,8 +41,8 @@ app.use('/uploads', express.static(UPLOAD_PATH));
 app.get('/', (req, res) => {
   res.json({
     message: 'Welcome to IT (Issue Talk) API',
-    company: '51talk - AI Team'
-    // Volume persistence test
+    company: '51talk - AI Team',
+    storage: 'Railway Volume configured'
   });
 });
 
