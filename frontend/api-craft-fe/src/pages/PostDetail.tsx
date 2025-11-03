@@ -173,19 +173,36 @@ const PostDetail = () => {
         </Button>
 
         <Card className="p-6 mb-6">
-          <div className="flex items-center gap-3 mb-4">
-            <Avatar>
-              <AvatarFallback className="bg-primary text-primary-foreground">
-                {post.author.username.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <p className="font-semibold">{post.author.fullName || post.author.username}</p>
-              <p className="text-sm text-muted-foreground">
-                @{post.author.username} · {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
-              </p>
+          {post.author && (
+            <div className="flex items-center gap-3 mb-4">
+              <Avatar>
+                <AvatarFallback className="bg-primary text-primary-foreground">
+                  {post.author.username?.charAt(0).toUpperCase() || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="font-semibold">{post.author.fullName || post.author.username || 'Unknown User'}</p>
+                <p className="text-sm text-muted-foreground">
+                  @{post.author.username || 'unknown'} · {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
+                </p>
+              </div>
             </div>
-          </div>
+          )}
+          {!post.author && (
+            <div className="flex items-center gap-3 mb-4">
+              <Avatar>
+                <AvatarFallback className="bg-primary text-primary-foreground">
+                  U
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="font-semibold">Unknown User</p>
+                <p className="text-sm text-muted-foreground">
+                  @unknown · {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
+                </p>
+              </div>
+            </div>
+          )}
 
           <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
 
@@ -310,12 +327,14 @@ const PostDetail = () => {
               <div key={comment._id} className="flex gap-3 p-4 bg-secondary rounded-lg">
                 <Avatar>
                   <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                    {comment.author.username.charAt(0).toUpperCase()}
+                    {comment.author?.username?.charAt(0).toUpperCase() || 'U'}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <p className="font-semibold text-sm">{comment.author.fullName || comment.author.username}</p>
+                    <p className="font-semibold text-sm">
+                      {comment.author?.fullName || comment.author?.username || 'Unknown User'}
+                    </p>
                     <span className="text-xs text-muted-foreground">
                       {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
                     </span>
