@@ -227,7 +227,13 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden, currentUserI
     <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer" onClick={handleCardClick}>
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          <Avatar>
+          <Avatar
+            className="cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/profile/${post.author._id}`);
+            }}
+          >
             {post.author.avatar ? (
               <AvatarImage src={post.author.avatar} />
             ) : (
@@ -238,14 +244,28 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden, currentUserI
           </Avatar>
           <div>
             <div className="flex items-center gap-2">
-              <p className="font-semibold">{post.author.fullName || post.author.username}</p>
+              <p
+                className="font-semibold cursor-pointer hover:underline"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/profile/${post.author._id}`);
+                }}
+              >
+                {post.author.fullName || post.author.username}
+              </p>
               {post.visibility === "private" ? (
                 <Lock className="h-3 w-3 text-muted-foreground" />
               ) : (
                 <Globe className="h-3 w-3 text-muted-foreground" />
               )}
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p
+              className="text-sm text-muted-foreground cursor-pointer hover:underline"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/profile/${post.author._id}`);
+              }}
+            >
               @{post.author.username} · {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
             </p>
           </div>
