@@ -401,13 +401,14 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden, currentUserI
               size="sm"
               onClick={(e) => handleReaction(type, e)}
               className={reactions.userReaction === type ? "text-primary" : ""}
+              title={t(`postCard.${type}`)}
             >
               <Icon className="h-4 w-4 mr-1" />
               {reactions.userReaction === type && reactions.count > 0 && reactions.count}
             </Button>
           ))}
         </div>
-        <Button variant="ghost" size="sm" onClick={handleCardClick}>
+        <Button variant="ghost" size="sm" onClick={handleCardClick} title={t("postCard.comment")}>
           <MessageCircle className="h-4 w-4 mr-1" />
           {post.commentsCount > 0 && post.commentsCount}
         </Button>
