@@ -13,6 +13,8 @@ import DOMPurify from "isomorphic-dompurify";
 import { formatDistanceToNow } from "date-fns";
 import { ArrowLeft } from "lucide-react";
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const PostDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -24,6 +26,9 @@ const PostDetail = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
 
   useEffect(() => {
     const token = getToken();
@@ -96,6 +101,51 @@ const PostDetail = () => {
     }
   };
 
+  // Carousel navigation handlers
+  const goToNextImage = () => {
+    if (post?.images && currentImageIndex < post.images.length - 1) {
+      setCurrentImageIndex(prev => prev + 1);
+    }
+  };
+
+  const goToPrevImage = () => {
+    if (currentImageIndex > 0) {
+      setCurrentImageIndex(prev => prev - 1);
+    }
+  };
+
+  const goToImage = (index: number) => {
+    setCurrentImageIndex(index);
+  };
+
+  // Touch handlers for swipe on mobile
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (isLeftSwipe && post?.images && currentImageIndex < post.images.length - 1) {
+      setCurrentImageIndex(prev => prev + 1);
+    }
+
+    if (isRightSwipe && currentImageIndex > 0) {
+      setCurrentImageIndex(prev => prev - 1);
+    }
+
+    setTouchStart(0);
+    setTouchEnd(0);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
@@ -143,6 +193,89 @@ const PostDetail = () => {
             className="prose prose-sm max-w-none mb-4"
             dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
           />
+
+          {/* Images - Instagram Style Carousel */}
+          {post.images && post.images.length > 0 && (
+            <div className="relative w-full bg-gray-100 dark:bg-gray-900 select-none mb-4 -mx-6">
+              {/* Image Container with fixed height */}
+              <div
+                className="relative overflow-hidden h-[400px] md:h-[500px]"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+              >
+                <div
+                  className="flex h-full transition-transform duration-300 ease-out"
+                  style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
+                >
+                  {post.images.map((img: string, index: number) => (
+                    <div key={index} className="w-full h-full flex-shrink-0 flex items-center justify-center bg-black">
+                      <img
+                        src={img.startsWith('http') ? img : `${API_URL.replace('/api', '')}${img}`}
+                        alt={`Post image ${index + 1}`}
+                        className="w-full h-full object-contain"
+                        draggable={false}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Navigation Arrows (Desktop) */}
+              {post.images.length > 1 && (
+                <>
+                  {currentImageIndex > 0 && (
+                    <button
+                      onClick={goToPrevImage}
+                      className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-all z-10"
+                      aria-label="Previous image"
+                    >
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                  )}
+
+                  {currentImageIndex < post.images.length - 1 && (
+                    <button
+                      onClick={goToNextImage}
+                      className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-all z-10"
+                      aria-label="Next image"
+                    >
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  )}
+                </>
+              )}
+
+              {/* Dots Indicator */}
+              {post.images.length > 1 && (
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+                  {post.images.map((_: string, index: number) => (
+                    <button
+                      key={index}
+                      onClick={() => goToImage(index)}
+                      className={`transition-all rounded-full ${
+                        index === currentImageIndex
+                          ? 'bg-white w-2 h-2'
+                          : 'bg-white/60 w-1.5 h-1.5 hover:bg-white/80'
+                      }`}
+                      aria-label={`Go to image ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {/* Image Counter (Top Right) */}
+              {post.images.length > 1 && (
+                <div className="absolute top-3 right-3 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
+                  {currentImageIndex + 1} / {post.images.length}
+                </div>
+              )}
+            </div>
+          )}
 
           {post.tags && post.tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-4">

@@ -92,6 +92,14 @@ export const postsAPI = {
     return handleResponse(response);
   },
 
+  getPost: async (id: string) => {
+    const response = await fetch(`${API_URL}/api/posts/${id}`, {
+      method: 'GET',
+      headers: createHeaders(),
+    });
+    return handleResponse(response);
+  },
+
   create: async (data: FormData) => {
     const response = await fetch(`${API_URL}/api/posts`, {
       method: 'POST',
