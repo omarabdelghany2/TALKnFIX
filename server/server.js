@@ -43,8 +43,8 @@ app.get('/', (req, res) => {
   res.json({
     message: 'Welcome to IT (Issue Talk) API',
     company: '51talk - AI Team',
-    storage: 'Railway Volume configured',
-    version: '1.0.1'
+    storage: 'Railway Volume configured'
+    // version: '1.0.1'
   });
 });
 
