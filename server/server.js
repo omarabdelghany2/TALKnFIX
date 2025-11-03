@@ -33,7 +33,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static files (uploads)
-app.use('/uploads', express.static('uploads'));
+// Use Railway Volume path if available, otherwise use local uploads
+const UPLOAD_PATH = process.env.UPLOAD_PATH || 'uploads';
+app.use('/uploads', express.static(UPLOAD_PATH));
 
 // Basic route for testing
 app.get('/', (req, res) => {
