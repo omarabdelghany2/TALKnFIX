@@ -366,6 +366,12 @@ exports.deleteUser = async (req, res) => {
       { $pull: { collaborators: userId } }
     );
 
+    // 5.5. Remove all project updates posted by the user
+    await Project.updateMany(
+      { 'updates.user': userId },
+      { $pull: { updates: { user: userId } } }
+    );
+
     // 6. Remove user from all friends' friend lists
     await User.updateMany(
       { friends: userId },
