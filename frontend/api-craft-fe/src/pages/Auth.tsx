@@ -8,6 +8,7 @@ import { authAPI, setToken } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import logo from "@/assets/talknfix-logo.png";
+import talk51Logo from "@/assets/51TalkLogo.png.webp";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -82,13 +83,13 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-accent/10 p-4">
-      <Card className="w-full max-w-md p-8">
-        <div className="flex justify-center mb-8">
-          <img src={logo} alt="TalkNFix" className="h-16" />
-        </div>
-
-        <Tabs defaultValue="login" className="w-full">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-primary/10 via-background to-accent/10">
+      <div className="flex-1 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md p-8">
+          <div className="flex justify-center mb-8">
+            <img src={logo} alt="TalkNFix" className="h-20 md:h-24" />
+          </div>
+          <Tabs defaultValue="login" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-6">
             <TabsTrigger value="login">{t("auth.login")}</TabsTrigger>
             <TabsTrigger value="register">{t("auth.register")}</TabsTrigger>
@@ -171,6 +172,15 @@ const Auth = () => {
           </TabsContent>
         </Tabs>
       </Card>
+      </div>
+      <footer className="w-full py-6">
+        <div className="flex flex-col items-center gap-4">
+          <img src={talk51Logo} alt="51Talk" className="h-12" />
+          <p className="text-center text-sm text-muted-foreground">
+            Developed and created by the AIBP team in Cairo region
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };
