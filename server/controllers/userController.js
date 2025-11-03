@@ -1,4 +1,8 @@
 const User = require('../models/User');
+const Post = require('../models/Post');
+const Comment = require('../models/Comment');
+const Reaction = require('../models/Reaction');
+const Project = require('../models/Project');
 const { getReputationDetails } = require('../services/reputationService');
 
 // @desc    Get user profile
@@ -311,6 +315,84 @@ exports.getUserBadges = async (req, res) => {
       badges: user.badges
     });
   } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Delete user account (with cascade deletion)
+// @route   DELETE /api/users/:id
+// @access  Private (Admin or self)
+exports.deleteUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    // Check if user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Only allow user to delete their own account (or admin in future)
+    if (req.user.id !== userId) {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to delete this account'
+      });
+    }
+
+    // CASCADE DELETE ALL USER DATA
+
+    // 1. Delete all posts by the user
+    await Post.deleteMany({ author: userId });
+
+    // 2. Delete all comments by the user
+    await Comment.deleteMany({ author: userId });
+
+    // 3. Delete all reactions by the user
+    await Reaction.deleteMany({ user: userId });
+
+    // 4. Delete all projects owned by the user
+    await Project.deleteMany({ owner: userId });
+
+    // 5. Remove user from collaborators arrays in projects
+    await Project.updateMany(
+      { collaborators: userId },
+      { $pull: { collaborators: userId } }
+    );
+
+    // 6. Remove user from all friends' friend lists
+    await User.updateMany(
+      { friends: userId },
+      { $pull: { friends: userId } }
+    );
+
+    // 7. Remove all friend requests from/to this user
+    await User.updateMany(
+      { 'friendRequests.from': userId },
+      { $pull: { friendRequests: { from: userId } } }
+    );
+
+    // 8. Remove user from hidden posts arrays
+    await User.updateMany(
+      { hiddenPosts: { $in: await Post.find({ author: userId }).select('_id') } },
+      { $pull: { hiddenPosts: { $in: await Post.find({ author: userId }).select('_id') } } }
+    );
+
+    // 9. Finally, delete the user account
+    await User.findByIdAndDelete(userId);
+
+    res.json({
+      success: true,
+      message: 'User account and all associated data deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting user:', error);
     res.status(500).json({
       success: false,
       message: error.message

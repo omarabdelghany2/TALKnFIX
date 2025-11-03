@@ -10,7 +10,8 @@ const {
   searchUsers,
   getLeaderboard,
   getUserReputation,
-  getUserBadges
+  getUserBadges,
+  deleteUser
 } = require('../controllers/userController');
 const { protect } = require('../middleware/auth');
 
@@ -27,5 +28,6 @@ router.post('/:id/friend-request', sendFriendRequest);
 router.post('/friend-request/:requestId/accept', acceptFriendRequest);
 router.post('/friend-request/:requestId/reject', rejectFriendRequest);
 router.delete('/:id/friend', removeFriend);
+router.delete('/:id', deleteUser);
 
 module.exports = router;
