@@ -132,7 +132,10 @@ const Search = () => {
             results.map((user) => (
               <Card key={user._id} className="p-4">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
+                  <div
+                    className="flex items-center space-x-4 cursor-pointer flex-1"
+                    onClick={() => navigate(`/profile/${user._id}`)}
+                  >
                     <Avatar className="h-12 w-12">
                       <AvatarImage src={user.avatar} />
                       <AvatarFallback className="bg-primary text-primary-foreground">
@@ -140,7 +143,7 @@ const Search = () => {
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-semibold">{user.fullName || user.username}</p>
+                      <p className="font-semibold hover:underline">{user.fullName || user.username}</p>
                       <p className="text-sm text-muted-foreground">@{user.username}</p>
                     </div>
                   </div>
