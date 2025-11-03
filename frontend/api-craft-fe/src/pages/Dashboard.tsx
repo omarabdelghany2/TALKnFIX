@@ -53,15 +53,21 @@ const Dashboard = () => {
   const filteredProjects = data?.filter((project) => {
     // Filter by status
     const statusMatch = selectedStatus === "all" ? true : project.status === selectedStatus;
-    
-    // Filter by owner
+
+    // Filter by owner or collaborator
     let ownerMatch = true;
     if (viewMode === "my" && currentUser) {
-      ownerMatch = project.owner._id === currentUser._id;
+      // Check if user is owner OR collaborator
+      const isOwner = project.owner._id === currentUser._id;
+      const isCollaborator = project.collaborators?.some((collab: any) => collab._id === currentUser._id);
+      ownerMatch = isOwner || isCollaborator;
     } else if (viewMode === "user" && selectedUserId) {
-      ownerMatch = project.owner._id === selectedUserId;
+      // Check if selected user is owner OR collaborator
+      const isOwner = project.owner._id === selectedUserId;
+      const isCollaborator = project.collaborators?.some((collab: any) => collab._id === selectedUserId);
+      ownerMatch = isOwner || isCollaborator;
     }
-    
+
     return statusMatch && ownerMatch;
   }) || [];
 
