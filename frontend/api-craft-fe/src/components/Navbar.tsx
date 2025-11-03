@@ -84,7 +84,11 @@ const Navbar = ({ onSearch }: NavbarProps) => {
                 variant="ghost"
                 size="sm"
                 asChild
-                className="relative"
+                className={`relative ${
+                  link.to === "/dashboard"
+                    ? "bg-gradient-to-r from-yellow-500 to-amber-600 text-white hover:from-yellow-600 hover:to-amber-700 font-bold shadow-lg hover:shadow-xl transition-all duration-200"
+                    : ""
+                }`}
               >
                 <Link to={link.to}>
                   {link.icon}
@@ -134,7 +138,11 @@ const Navbar = ({ onSearch }: NavbarProps) => {
                       <Button
                         key={link.to}
                         variant="ghost"
-                        className="w-full justify-start relative"
+                        className={`w-full justify-start relative ${
+                          link.to === "/dashboard"
+                            ? "bg-gradient-to-r from-yellow-500 to-amber-600 text-white hover:from-yellow-600 hover:to-amber-700 font-bold shadow-lg hover:shadow-xl transition-all duration-200"
+                            : ""
+                        }`}
                         asChild
                         onClick={() => setMobileMenuOpen(false)}
                       >
