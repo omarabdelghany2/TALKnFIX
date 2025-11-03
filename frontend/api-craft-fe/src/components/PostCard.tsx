@@ -76,6 +76,7 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden, currentUserI
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const [localCurrentUserId, setLocalCurrentUserId] = useState<string | null>(currentUserId || null);
+  const [isContentTruncated, setIsContentTruncated] = useState(false);
 
   // Get current user ID if not provided
   useEffect(() => {
@@ -93,6 +94,12 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden, currentUserI
       loadCurrentUser();
     }
   }, [currentUserId]);
+
+  // Check if content needs truncation (character count > 300)
+  useEffect(() => {
+    const plainText = post.content.replace(/<[^>]*>/g, '');
+    setIsContentTruncated(plainText.length > 300);
+  }, [post.content]);
 
   const handleReaction = async (type: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -317,6 +324,19 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden, currentUserI
           className="prose prose-sm max-w-none line-clamp-3"
           dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
         />
+        {isContentTruncated && (
+          <Button
+            variant="link"
+            size="sm"
+            className="p-0 h-auto font-semibold text-primary hover:text-primary/80 mt-1"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/post/${post._id}`);
+            }}
+          >
+            {t("postCard.readMore")}
+          </Button>
+        )}
       </div>
 
       {/* Images - Instagram Style Carousel */}
