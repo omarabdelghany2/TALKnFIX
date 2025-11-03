@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Plus, X, Loader2, Calendar, GitCommit, Users as UsersIcon } from "lucide-react";
-import { projectsAPI, usersAPI } from "@/lib/api";
+import { projectsAPI, usersAPI, authAPI } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { useTranslation } from "react-i18next";
@@ -31,6 +31,14 @@ const ProjectDetail = () => {
   const [updateContent, setUpdateContent] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [collaboratorDialogOpen, setCollaboratorDialogOpen] = useState(false);
+
+  const { data: currentUser } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: async () => {
+      const response = await authAPI.getMe();
+      return response.user;
+    },
+  });
 
   const { data: project, isLoading, refetch } = useQuery({
     queryKey: ["project", id],
@@ -119,6 +127,12 @@ const ProjectDetail = () => {
 
   const status = statusConfig[project.status];
 
+  // Check if current user is owner or collaborator
+  const isAuthorized = currentUser && (
+    project.owner._id === currentUser._id ||
+    project.collaborators.some((collab) => collab._id === currentUser._id)
+  );
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -162,52 +176,54 @@ const ProjectDetail = () => {
                   <UsersIcon className="h-5 w-5" />
                   {t("project.collaborators")}
                 </CardTitle>
-                <Dialog open={collaboratorDialogOpen} onOpenChange={setCollaboratorDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button size="sm">
-                      <Plus className="mr-2 h-4 w-4" />
-                      {t("project.addCollaborator")}
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>{t("project.addCollaborator")}</DialogTitle>
-                      <DialogDescription>{t("project.searchUsers")}</DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <Input
-                        placeholder={t("project.searchPlaceholder")}
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                      />
-                      {searchResults?.users && searchResults.users.length > 0 && (
-                        <div className="space-y-2 max-h-64 overflow-y-auto">
-                          {searchResults.users.map((user: any) => (
-                            <div key={user._id} className="flex items-center justify-between p-2 hover:bg-muted rounded">
-                              <div className="flex items-center gap-2">
-                                <Avatar className="h-8 w-8">
-                                  <AvatarImage src={user.avatar} />
-                                  <AvatarFallback>{user.username[0].toUpperCase()}</AvatarFallback>
-                                </Avatar>
-                                <div>
-                                  <p className="font-medium">{user.fullName || user.username}</p>
-                                  <p className="text-sm text-muted-foreground">@{user.username}</p>
+                {isAuthorized && (
+                  <Dialog open={collaboratorDialogOpen} onOpenChange={setCollaboratorDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button size="sm">
+                        <Plus className="mr-2 h-4 w-4" />
+                        {t("project.addCollaborator")}
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>{t("project.addCollaborator")}</DialogTitle>
+                        <DialogDescription>{t("project.searchUsers")}</DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <Input
+                          placeholder={t("project.searchPlaceholder")}
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                        {searchResults?.users && searchResults.users.length > 0 && (
+                          <div className="space-y-2 max-h-64 overflow-y-auto">
+                            {searchResults.users.map((user: any) => (
+                              <div key={user._id} className="flex items-center justify-between p-2 hover:bg-muted rounded">
+                                <div className="flex items-center gap-2">
+                                  <Avatar className="h-8 w-8">
+                                    <AvatarImage src={user.avatar} />
+                                    <AvatarFallback>{user.username[0].toUpperCase()}</AvatarFallback>
+                                  </Avatar>
+                                  <div>
+                                    <p className="font-medium">{user.fullName || user.username}</p>
+                                    <p className="text-sm text-muted-foreground">@{user.username}</p>
+                                  </div>
                                 </div>
+                                <Button
+                                  size="sm"
+                                  onClick={() => addCollaboratorMutation.mutate(user._id)}
+                                  disabled={addCollaboratorMutation.isPending}
+                                >
+                                  {t("project.add")}
+                                </Button>
                               </div>
-                              <Button
-                                size="sm"
-                                onClick={() => addCollaboratorMutation.mutate(user._id)}
-                                disabled={addCollaboratorMutation.isPending}
-                              >
-                                {t("project.add")}
-                              </Button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                )}
               </div>
             </CardHeader>
             <CardContent>
@@ -227,13 +243,15 @@ const ProjectDetail = () => {
                           <p className="text-sm text-muted-foreground">@{collab.username}</p>
                         </div>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeCollaboratorMutation.mutate(collab._id)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
+                      {isAuthorized && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeCollaboratorMutation.mutate(collab._id)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -250,38 +268,42 @@ const ProjectDetail = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  if (updateContent.trim()) {
-                    addUpdateMutation.mutate(updateContent);
-                  }
-                }}
-                className="mb-6"
-              >
-                <Textarea
-                  placeholder={t("project.updatePlaceholder")}
-                  value={updateContent}
-                  onChange={(e) => setUpdateContent(e.target.value)}
-                  rows={3}
-                  className="mb-2"
-                />
-                <Button type="submit" disabled={!updateContent.trim() || addUpdateMutation.isPending}>
-                  {addUpdateMutation.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      {t("project.adding")}
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="mr-2 h-4 w-4" />
-                      {t("project.addUpdate")}
-                    </>
-                  )}
-                </Button>
-              </form>
+              {isAuthorized && (
+                <>
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      if (updateContent.trim()) {
+                        addUpdateMutation.mutate(updateContent);
+                      }
+                    }}
+                    className="mb-6"
+                  >
+                    <Textarea
+                      placeholder={t("project.updatePlaceholder")}
+                      value={updateContent}
+                      onChange={(e) => setUpdateContent(e.target.value)}
+                      rows={3}
+                      className="mb-2"
+                    />
+                    <Button type="submit" disabled={!updateContent.trim() || addUpdateMutation.isPending}>
+                      {addUpdateMutation.isPending ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          {t("project.adding")}
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="mr-2 h-4 w-4" />
+                          {t("project.addUpdate")}
+                        </>
+                      )}
+                    </Button>
+                  </form>
 
-              <Separator className="my-6" />
+                  <Separator className="my-6" />
+                </>
+              )}
 
               {project.updates.length === 0 ? (
                 <p className="text-muted-foreground text-center py-8">{t("project.noUpdates")}</p>
