@@ -12,6 +12,7 @@ import ProjectDetail from "./pages/ProjectDetail";
 import Friends from "./pages/Friends";
 import Leaderboard from "./pages/Leaderboard";
 import Profile from "./pages/Profile";
+import Search from "./pages/Search";
 import AdvancedSearch from "./pages/AdvancedSearch";
 import NotFound from "./pages/NotFound";
 import "@/i18n/config";
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />
           <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/search" element={<ProtectedRoute><Search /></ProtectedRoute>} />
           <Route path="/advanced-search" element={<ProtectedRoute><AdvancedSearch /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
