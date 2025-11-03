@@ -118,6 +118,14 @@ export const postsAPI = {
     return handleResponse(response);
   },
 
+  hide: async (id: string) => {
+    const response = await fetch(`${API_URL}/api/posts/${id}/hide`, {
+      method: 'POST',
+      headers: createHeaders(),
+    });
+    return handleResponse(response);
+  },
+
   search: async (params: any) => {
     const queryString = new URLSearchParams(params).toString();
     const response = await fetch(`${API_URL}/api/posts/search?${queryString}`, {
