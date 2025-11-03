@@ -38,6 +38,7 @@ const UPLOAD_PATH = process.env.UPLOAD_PATH || 'uploads';
 app.use('/uploads', express.static(UPLOAD_PATH));
 
 // Basic route for testing
+// Volume persistence test #2
 app.get('/', (req, res) => {
   res.json({
     message: 'Welcome to IT (Issue Talk) API',
