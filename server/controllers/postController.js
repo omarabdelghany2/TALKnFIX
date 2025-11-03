@@ -401,15 +401,20 @@ exports.searchPosts = async (req, res) => {
       query.$text = { $search: q };
     }
 
-    // Tag filtering
+    // Tag filtering (case-insensitive)
     if (tags) {
       const tagArray = tags.split(',').map(tag => tag.trim());
-      query.tags = { $in: tagArray };
+      // Use regex for case-insensitive tag matching
+      query.tags = {
+        $in: tagArray.map(tag => new RegExp(`^${tag}$`, 'i'))
+      };
     }
 
-    // Author filtering
+    // Author filtering (case-insensitive)
     if (author) {
-      const user = await User.findOne({ username: author });
+      const user = await User.findOne({
+        username: { $regex: new RegExp(`^${author}$`, 'i') }
+      });
       if (user) {
         query.author = user._id;
       }
