@@ -7,6 +7,7 @@ exports.getAllProjects = async (req, res) => {
     const projects = await Project.find()
       .populate('owner', 'username fullName avatar')
       .populate('collaborators', 'username fullName avatar')
+      .populate('updates.user', 'username fullName avatar')
       .sort({ updatedAt: -1 });
 
     res.json({ projects });
@@ -21,7 +22,8 @@ exports.getProjectById = async (req, res) => {
   try {
     const project = await Project.findById(req.params.id)
       .populate('owner', 'username fullName avatar')
-      .populate('collaborators', 'username fullName avatar');
+      .populate('collaborators', 'username fullName avatar')
+      .populate('updates.user', 'username fullName avatar');
 
     if (!project) {
       return res.status(404).json({ message: 'Project not found' });
@@ -40,6 +42,7 @@ exports.getProjectsByUserId = async (req, res) => {
     const projects = await Project.find({ owner: req.params.userId })
       .populate('owner', 'username fullName avatar')
       .populate('collaborators', 'username fullName avatar')
+      .populate('updates.user', 'username fullName avatar')
       .sort({ updatedAt: -1 });
 
     res.json({ projects });
@@ -161,12 +164,16 @@ exports.addUpdate = async (req, res) => {
     }
 
     const newUpdate = {
+      user: req.user.id,
       content,
       createdAt: new Date()
     };
 
     project.updates.push(newUpdate);
     await project.save();
+
+    // Populate the user field of the newly added update
+    await project.populate('updates.user', 'username fullName avatar');
 
     res.json({ update: project.updates[project.updates.length - 1] });
   } catch (error) {

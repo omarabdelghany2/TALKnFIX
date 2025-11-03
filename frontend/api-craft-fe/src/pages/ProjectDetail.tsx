@@ -312,16 +312,26 @@ const ProjectDetail = () => {
                   {[...project.updates].reverse().map((update, index) => (
                     <div key={update._id} className="flex gap-4">
                       <div className="flex flex-col items-center">
-                        <div className="h-2 w-2 rounded-full bg-primary" />
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={update.user?.avatar} />
+                          <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                            {update.user?.username?.[0]?.toUpperCase() || '?'}
+                          </AvatarFallback>
+                        </Avatar>
                         {index < project.updates.length - 1 && (
                           <div className="flex-1 w-px bg-border mt-2" />
                         )}
                       </div>
                       <div className="flex-1 pb-8">
-                        <p className="text-sm font-medium">{update.content}</p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {formatDistanceToNow(new Date(update.createdAt), { addSuffix: true })}
-                        </p>
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="text-sm font-semibold">
+                            {update.user?.fullName || update.user?.username || 'Unknown User'}
+                          </p>
+                          <span className="text-xs text-muted-foreground">
+                            {formatDistanceToNow(new Date(update.createdAt), { addSuffix: true })}
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{update.content}</p>
                       </div>
                     </div>
                   ))}
