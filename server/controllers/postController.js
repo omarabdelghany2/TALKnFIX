@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Post = require('../models/Post');
 const User = require('../models/User');
 const Reaction = require('../models/Reaction');
@@ -383,7 +384,7 @@ exports.getUserPosts = async (req, res) => {
 
     // Calculate total stats
     const stats = await Post.aggregate([
-      { $match: { author: targetUserId } },
+      { $match: { author: new mongoose.Types.ObjectId(targetUserId) } },
       {
         $group: {
           _id: null,
