@@ -16,7 +16,8 @@ import {
   FileText,
   ThumbsUp,
   MessageCircle,
-  Settings
+  Settings,
+  Camera
 } from "lucide-react";
 import { postsAPI, usersAPI, authAPI, getToken } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
@@ -35,6 +36,7 @@ const Profile = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isFriend, setIsFriend] = useState(false);
   const [requestSent, setRequestSent] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
   const isOwnProfile = !id || id === currentUser?._id;
 
@@ -124,6 +126,53 @@ const Profile = () => {
     }
   };
 
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: t("common.error"),
+        description: "Please select an image file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: t("common.error"),
+        description: "Image size must be less than 10MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploadingAvatar(true);
+    try {
+      const response = await usersAPI.uploadProfilePicture(file);
+
+      // Update the profile user state with new avatar
+      setProfileUser({ ...profileUser, avatar: response.avatar });
+      setCurrentUser({ ...currentUser, avatar: response.avatar });
+
+      toast({
+        title: t("common.success"),
+        description: "Profile picture updated successfully",
+      });
+    } catch (error: any) {
+      toast({
+        title: t("common.error"),
+        description: error.message || "Failed to upload profile picture",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+
   const handlePostClick = (postId: string) => {
     navigate(`/post/${postId}`);
   };
@@ -163,12 +212,34 @@ const Profile = () => {
         <Card className="p-6 mb-6">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="flex items-center space-x-4">
-              <Avatar className="h-24 w-24">
-                <AvatarImage src={profileUser.avatar} />
-                <AvatarFallback className="bg-primary text-primary-foreground text-3xl">
-                  {profileUser.username.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
+              <div className="relative">
+                <Avatar className="h-24 w-24">
+                  <AvatarImage src={profileUser.avatar} />
+                  <AvatarFallback className="bg-primary text-primary-foreground text-3xl">
+                    {profileUser.username.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                {isOwnProfile && (
+                  <label
+                    htmlFor="avatar-upload"
+                    className="absolute bottom-0 right-0 bg-primary text-primary-foreground rounded-full p-2 cursor-pointer hover:bg-primary/90 transition-colors"
+                  >
+                    {isUploadingAvatar ? (
+                      <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Camera className="h-4 w-4" />
+                    )}
+                    <input
+                      id="avatar-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarUpload}
+                      className="hidden"
+                      disabled={isUploadingAvatar}
+                    />
+                  </label>
+                )}
+              </div>
               <div>
                 <h1 className="text-2xl font-bold">
                   {profileUser.fullName || profileUser.username}

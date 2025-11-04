@@ -4,6 +4,8 @@ const Comment = require('../models/Comment');
 const Reaction = require('../models/Reaction');
 const Project = require('../models/Project');
 const { getReputationDetails } = require('../services/reputationService');
+const fs = require('fs');
+const path = require('path');
 
 // @desc    Get user profile
 // @route   GET /api/users/:id
@@ -399,6 +401,59 @@ exports.deleteUser = async (req, res) => {
     });
   } catch (error) {
     console.error('Error deleting user:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Upload profile picture
+// @route   PUT /api/users/profile-picture
+// @access  Private
+exports.uploadProfilePicture = async (req, res) => {
+  try {
+    // Check if file was uploaded
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please upload an image file'
+      });
+    }
+
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Delete old profile picture if it exists
+    if (user.avatar) {
+      const UPLOAD_PATH = process.env.UPLOAD_PATH || 'uploads';
+      const oldAvatarPath = path.join(UPLOAD_PATH, path.basename(user.avatar));
+
+      if (fs.existsSync(oldAvatarPath)) {
+        try {
+          fs.unlinkSync(oldAvatarPath);
+        } catch (err) {
+          console.error('Error deleting old avatar:', err);
+        }
+      }
+    }
+
+    // Update user avatar with new image path
+    user.avatar = `/uploads/${req.file.filename}`;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Profile picture updated successfully',
+      avatar: user.avatar
+    });
+  } catch (error) {
     res.status(500).json({
       success: false,
       message: error.message

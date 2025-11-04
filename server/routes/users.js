@@ -11,9 +11,11 @@ const {
   getLeaderboard,
   getUserReputation,
   getUserBadges,
-  deleteUser
+  deleteUser,
+  uploadProfilePicture
 } = require('../controllers/userController');
 const { protect } = require('../middleware/auth');
+const upload = require('../middleware/upload');
 
 // All routes are protected
 router.use(protect);
@@ -27,6 +29,7 @@ router.get('/:id/badges', getUserBadges);
 router.post('/:id/friend-request', sendFriendRequest);
 router.post('/friend-request/:requestId/accept', acceptFriendRequest);
 router.post('/friend-request/:requestId/reject', rejectFriendRequest);
+router.put('/profile-picture', upload.single('avatar'), uploadProfilePicture);
 router.delete('/:id/friend', removeFriend);
 router.delete('/:id', deleteUser);
 

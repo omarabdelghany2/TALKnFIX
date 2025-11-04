@@ -265,6 +265,18 @@ export const usersAPI = {
     });
     return handleResponse(response);
   },
+
+  uploadProfilePicture: async (file: File) => {
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    const response = await fetch(`${API_URL}/api/users/profile-picture`, {
+      method: 'PUT',
+      headers: createFormDataHeaders(),
+      body: formData,
+    });
+    return handleResponse(response);
+  },
 };
 
 // Projects API
