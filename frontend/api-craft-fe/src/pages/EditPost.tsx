@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Image, Globe, Lock, X, ArrowLeft } from "lucide-react";
-import { postsAPI, authAPI, getToken } from "@/lib/api";
+import { postsAPI, authAPI, getToken, getAvatarUrl } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import RichTextEditor from "@/components/RichTextEditor";
 import {
@@ -195,7 +195,7 @@ const EditPost = () => {
         <Card className="p-4">
           <div className="flex space-x-3">
             <Avatar>
-              <AvatarImage src={currentUser?.avatar} />
+              <AvatarImage src={getAvatarUrl(currentUser?.avatar)} />
               <AvatarFallback className="bg-primary text-primary-foreground">
                 {currentUser?.username?.charAt(0).toUpperCase() || "U"}
               </AvatarFallback>

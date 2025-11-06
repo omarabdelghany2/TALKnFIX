@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { UserPlus, UserCheck, X, Check } from "lucide-react";
-import { usersAPI, authAPI, getToken } from "@/lib/api";
+import { usersAPI, authAPI, getToken, getAvatarUrl } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
 const Friends = () => {
@@ -161,7 +161,7 @@ const Friends = () => {
                     <Card key={friend._id} className="p-4">
                       <div className="flex items-center space-x-4">
                         <Avatar className="h-12 w-12">
-                          <AvatarImage src={friend?.avatar} />
+                          <AvatarImage src={getAvatarUrl(friend?.avatar)} />
                           <AvatarFallback className="bg-primary text-primary-foreground">
                             {friend?.username?.charAt(0).toUpperCase() || 'U'}
                           </AvatarFallback>
@@ -198,7 +198,7 @@ const Friends = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
                           <Avatar className="h-12 w-12">
-                            <AvatarImage src={request.from?.avatar} />
+                            <AvatarImage src={getAvatarUrl(request.from?.avatar)} />
                             <AvatarFallback className="bg-primary text-primary-foreground">
                               {request.from?.username?.charAt(0).toUpperCase() || 'U'}
                             </AvatarFallback>

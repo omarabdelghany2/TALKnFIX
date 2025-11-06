@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Trophy, Medal, Award } from 'lucide-react';
-import { usersAPI } from '@/lib/api';
+import { usersAPI, getAvatarUrl } from '@/lib/api';
 import { useNavigate } from 'react-router-dom';
 import ReputationBadge from '@/components/ReputationBadge';
 import BadgesList from '@/components/BadgesList';
@@ -118,7 +118,7 @@ const Leaderboard = () => {
 
               {/* Avatar and Info */}
               <Avatar className="h-16 w-16">
-                <AvatarImage src={user.avatar} />
+                <AvatarImage src={getAvatarUrl(user.avatar)} />
                 <AvatarFallback className="bg-primary text-primary-foreground text-xl">
                   {user.username.charAt(0).toUpperCase()}
                 </AvatarFallback>

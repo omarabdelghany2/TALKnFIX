@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Plus, X, Loader2, Calendar, GitCommit, Users as UsersIcon, Edit, Trash2 } from "lucide-react";
-import { projectsAPI, usersAPI, authAPI } from "@/lib/api";
+import { projectsAPI, usersAPI, authAPI, getAvatarUrl } from "@/lib/api";
 import {
   Select,
   SelectContent,
@@ -253,7 +253,7 @@ const ProjectDetail = () => {
                   <CardTitle className="text-3xl mb-2">{project.title}</CardTitle>
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Avatar className="h-6 w-6">
-                      <AvatarImage src={project.owner.avatar} />
+                      <AvatarImage src={getAvatarUrl(project.owner.avatar)} />
                       <AvatarFallback>{project.owner.username[0].toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <span>{project.owner.fullName || project.owner.username}</span>
@@ -347,7 +347,7 @@ const ProjectDetail = () => {
                               <div key={user._id} className="flex items-center justify-between p-2 hover:bg-muted rounded">
                                 <div className="flex items-center gap-2">
                                   <Avatar className="h-8 w-8">
-                                    <AvatarImage src={user.avatar} />
+                                    <AvatarImage src={getAvatarUrl(user.avatar)} />
                                     <AvatarFallback>{user.username[0].toUpperCase()}</AvatarFallback>
                                   </Avatar>
                                   <div>
@@ -381,7 +381,7 @@ const ProjectDetail = () => {
                     <div key={collab._id} className="flex items-center justify-between p-2 hover:bg-muted rounded">
                       <div className="flex items-center gap-2">
                         <Avatar className="h-8 w-8">
-                          <AvatarImage src={collab.avatar} />
+                          <AvatarImage src={getAvatarUrl(collab.avatar)} />
                           <AvatarFallback>{collab.username[0].toUpperCase()}</AvatarFallback>
                         </Avatar>
                         <div>
@@ -459,7 +459,7 @@ const ProjectDetail = () => {
                     <div key={update._id} className="flex gap-4">
                       <div className="flex flex-col items-center">
                         <Avatar className="h-8 w-8">
-                          <AvatarImage src={update.user?.avatar} />
+                          <AvatarImage src={getAvatarUrl(update.user?.avatar)} />
                           <AvatarFallback className="bg-primary text-primary-foreground text-xs">
                             {update.user?.username?.[0]?.toUpperCase() || '?'}
                           </AvatarFallback>

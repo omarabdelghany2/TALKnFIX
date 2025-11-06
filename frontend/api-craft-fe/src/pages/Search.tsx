@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Search as SearchIcon, UserPlus, UserCheck } from "lucide-react";
-import { usersAPI, authAPI, getToken } from "@/lib/api";
+import { usersAPI, authAPI, getToken, getAvatarUrl } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
 const Search = () => {
@@ -137,7 +137,7 @@ const Search = () => {
                     onClick={() => navigate(`/profile/${user._id}`)}
                   >
                     <Avatar className="h-12 w-12">
-                      <AvatarImage src={user.avatar} />
+                      <AvatarImage src={getAvatarUrl(user.avatar)} />
                       <AvatarFallback className="bg-primary text-primary-foreground">
                         {user.username.charAt(0).toUpperCase()}
                       </AvatarFallback>
