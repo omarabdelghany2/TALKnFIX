@@ -59,6 +59,7 @@ const ProjectDetail = () => {
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [editStatus, setEditStatus] = useState<"done" | "in-progress" | "future">("in-progress");
+  const [editCategory, setEditCategory] = useState<"business" | "team" | "killer">("business");
 
   const { data: currentUser } = useQuery({
     queryKey: ["currentUser"],
@@ -126,7 +127,7 @@ const ProjectDetail = () => {
   });
 
   const updateProjectMutation = useMutation({
-    mutationFn: async (data: { title: string; description: string; status: "done" | "in-progress" | "future" }) => {
+    mutationFn: async (data: { title: string; description: string; status: "done" | "in-progress" | "future"; category: "business" | "team" | "killer" }) => {
       return await projectsAPI.update(id!, data);
     },
     onSuccess: () => {
@@ -158,6 +159,7 @@ const ProjectDetail = () => {
         title: project.title,
         description: project.description,
         status: newStatus,
+        category: project.category || "business",
       });
     },
     onSuccess: () => {
@@ -197,7 +199,14 @@ const ProjectDetail = () => {
     future: { label: t("project.statusFuture"), className: "bg-blue-500 hover:bg-blue-600" },
   };
 
+  const categoryConfig = {
+    business: { label: t("project.categoryBusiness"), className: "bg-purple-500 hover:bg-purple-600" },
+    team: { label: t("project.categoryTeam"), className: "bg-cyan-500 hover:bg-cyan-600" },
+    killer: { label: t("project.categoryKiller"), className: "bg-pink-500 hover:bg-pink-600" },
+  };
+
   const status = statusConfig[project.status];
+  const category = categoryConfig[project.category || "business"];
 
   // Check if current user is owner or collaborator
   const isOwner = currentUser && project.owner._id === currentUser._id;
@@ -211,6 +220,7 @@ const ProjectDetail = () => {
     setEditTitle(project.title);
     setEditDescription(project.description);
     setEditStatus(project.status);
+    setEditCategory(project.category || "business");
     setEditDialogOpen(true);
   };
 
@@ -221,6 +231,7 @@ const ProjectDetail = () => {
       title: editTitle,
       description: editDescription,
       status: editStatus,
+      category: editCategory,
     });
   };
 
@@ -271,6 +282,9 @@ const ProjectDetail = () => {
                   ) : (
                     <Badge className={status.className}>{status.label}</Badge>
                   )}
+
+                  {/* Category Badge */}
+                  <Badge className={category.className}>{category.label}</Badge>
 
                   {/* Edit and Delete buttons for owner only */}
                   {isOwner && (
@@ -510,6 +524,19 @@ const ProjectDetail = () => {
                     <SelectItem value="future">{t("project.statusFuture")}</SelectItem>
                     <SelectItem value="in-progress">{t("project.statusInProgress")}</SelectItem>
                     <SelectItem value="done">{t("project.statusDone")}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">{t("project.category")}</label>
+                <Select value={editCategory} onValueChange={(value: "business" | "team" | "killer") => setEditCategory(value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="business">{t("project.categoryBusiness")}</SelectItem>
+                    <SelectItem value="team">{t("project.categoryTeam")}</SelectItem>
+                    <SelectItem value="killer">{t("project.categoryKiller")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

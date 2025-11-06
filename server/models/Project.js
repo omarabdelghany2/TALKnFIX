@@ -39,6 +39,12 @@ const projectSchema = new mongoose.Schema({
     default: 'future',
     required: true
   },
+  category: {
+    type: String,
+    enum: ['business', 'team', 'killer'],
+    default: 'business',
+    required: true
+  },
   collaborators: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'

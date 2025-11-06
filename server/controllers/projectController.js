@@ -60,7 +60,7 @@ exports.getProjectsByUserId = async (req, res) => {
 // Create a new project
 exports.createProject = async (req, res) => {
   try {
-    const { title, description, status } = req.body;
+    const { title, description, status, category } = req.body;
 
     if (!title || !description) {
       return res.status(400).json({ message: 'Title and description are required' });
@@ -71,6 +71,7 @@ exports.createProject = async (req, res) => {
       title,
       description,
       status: status || 'future',
+      category: category || 'business',
       collaborators: [],
       updates: []
     });
@@ -90,7 +91,7 @@ exports.createProject = async (req, res) => {
 // Update a project
 exports.updateProject = async (req, res) => {
   try {
-    const { title, description, status } = req.body;
+    const { title, description, status, category } = req.body;
 
     const project = await Project.findById(req.params.id);
 
@@ -106,6 +107,7 @@ exports.updateProject = async (req, res) => {
     if (title) project.title = title;
     if (description) project.description = description;
     if (status) project.status = status;
+    if (category) project.category = category;
 
     await project.save();
 

@@ -19,6 +19,7 @@ interface ProjectCardProps {
     title: string;
     description: string;
     status: "done" | "in-progress" | "future";
+    category: "business" | "team" | "killer";
     collaborators: {
       _id: string;
       username: string;
@@ -41,7 +42,14 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
     future: { label: t("project.statusFuture"), variant: "outline" as const, className: "bg-blue-500 hover:bg-blue-600" },
   };
 
+  const categoryConfig = {
+    business: { label: t("project.categoryBusiness"), className: "bg-purple-500 hover:bg-purple-600" },
+    team: { label: t("project.categoryTeam"), className: "bg-cyan-500 hover:bg-cyan-600" },
+    killer: { label: t("project.categoryKiller"), className: "bg-pink-500 hover:bg-pink-600" },
+  };
+
   const status = statusConfig[project.status];
+  const category = categoryConfig[project.category || "business"];
 
   return (
     <Card className="hover:shadow-lg transition-shadow">
@@ -57,7 +65,10 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
               <span className="text-sm">{project.owner.fullName || project.owner.username}</span>
             </CardDescription>
           </div>
-          <Badge className={status.className}>{status.label}</Badge>
+          <div className="flex flex-col gap-1">
+            <Badge className={status.className}>{status.label}</Badge>
+            <Badge className={category.className}>{category.label}</Badge>
+          </div>
         </div>
       </CardHeader>
       <CardContent>

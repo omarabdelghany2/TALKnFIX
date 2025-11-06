@@ -23,6 +23,7 @@ const CreateProjectCard = ({ onProjectCreated }: CreateProjectCardProps) => {
     title: "",
     description: "",
     status: "in-progress" as "done" | "in-progress" | "future",
+    category: "business" as "business" | "team" | "killer",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -43,7 +44,7 @@ const CreateProjectCard = ({ onProjectCreated }: CreateProjectCardProps) => {
         title: t("project.created"),
         description: t("project.createdSuccess"),
       });
-      setFormData({ title: "", description: "", status: "in-progress" });
+      setFormData({ title: "", description: "", status: "in-progress", category: "business" });
       setIsOpen(false);
       onProjectCreated?.();
     } catch (error) {
@@ -114,6 +115,24 @@ const CreateProjectCard = ({ onProjectCreated }: CreateProjectCardProps) => {
                 <SelectItem value="done">{t("project.statusDone")}</SelectItem>
                 <SelectItem value="in-progress">{t("project.statusInProgress")}</SelectItem>
                 <SelectItem value="future">{t("project.statusFuture")}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="category">{t("project.category")}</Label>
+            <Select
+              value={formData.category}
+              onValueChange={(value: any) => setFormData({ ...formData, category: value })}
+              disabled={isLoading}
+            >
+              <SelectTrigger id="category">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="business">{t("project.categoryBusiness")}</SelectItem>
+                <SelectItem value="team">{t("project.categoryTeam")}</SelectItem>
+                <SelectItem value="killer">{t("project.categoryKiller")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
