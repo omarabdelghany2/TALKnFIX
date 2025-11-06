@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
   UserPlus,
   UserCheck,
@@ -37,6 +38,7 @@ const Profile = () => {
   const [isFriend, setIsFriend] = useState(false);
   const [requestSent, setRequestSent] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [showAvatarPreview, setShowAvatarPreview] = useState(false);
 
   const isOwnProfile = !id || id === currentUser?._id;
 
@@ -213,7 +215,10 @@ const Profile = () => {
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="flex items-center space-x-4">
               <div className="relative">
-                <Avatar className="h-24 w-24">
+                <Avatar
+                  className={`h-24 w-24 ${profileUser.avatar ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
+                  onClick={() => profileUser.avatar && setShowAvatarPreview(true)}
+                >
                   <AvatarImage src={getAvatarUrl(profileUser.avatar)} />
                   <AvatarFallback className="bg-primary text-primary-foreground text-3xl">
                     {profileUser.username.charAt(0).toUpperCase()}
@@ -377,6 +382,19 @@ const Profile = () => {
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* Avatar Preview Dialog */}
+        <Dialog open={showAvatarPreview} onOpenChange={setShowAvatarPreview}>
+          <DialogContent className="max-w-3xl p-0 bg-transparent border-none">
+            <div className="relative">
+              <img
+                src={getAvatarUrl(profileUser?.avatar)}
+                alt={`${profileUser?.username}'s profile picture`}
+                className="w-full h-auto rounded-lg"
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
