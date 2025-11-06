@@ -25,7 +25,7 @@ import { formatDistanceToNow } from "date-fns";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { reactionsAPI, postsAPI, authAPI, getToken } from "@/lib/api";
+import { reactionsAPI, postsAPI, authAPI, getToken, getAvatarUrl } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import DOMPurify from "isomorphic-dompurify";
 
@@ -242,7 +242,7 @@ const PostCard = ({ post, onPostClick, onPostDeleted, onPostHidden, currentUserI
             }}
           >
             {post.author.avatar ? (
-              <AvatarImage src={post.author.avatar} />
+              <AvatarImage src={getAvatarUrl(post.author.avatar)} />
             ) : (
               <AvatarFallback className="bg-primary text-primary-foreground">
                 {post.author.username.charAt(0).toUpperCase()}

@@ -6,6 +6,7 @@ import { Clock, Users, Calendar } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { getAvatarUrl } from "@/lib/api";
 
 interface ProjectCardProps {
   project: {
@@ -59,7 +60,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
             <CardTitle className="line-clamp-1">{project.title}</CardTitle>
             <CardDescription className="mt-1 flex items-center gap-2">
               <Avatar className="h-5 w-5">
-                <AvatarImage src={project.owner.avatar} />
+                <AvatarImage src={getAvatarUrl(project.owner.avatar)} />
                 <AvatarFallback>{project.owner.username[0].toUpperCase()}</AvatarFallback>
               </Avatar>
               <span className="text-sm">{project.owner.fullName || project.owner.username}</span>
@@ -86,7 +87,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
               <div className="flex -space-x-2">
                 {project.collaborators.slice(0, 3).map((collab) => (
                   <Avatar key={collab._id} className="h-6 w-6 border-2 border-background">
-                    <AvatarImage src={collab.avatar} />
+                    <AvatarImage src={getAvatarUrl(collab.avatar)} />
                     <AvatarFallback className="text-xs">{collab.username[0].toUpperCase()}</AvatarFallback>
                   </Avatar>
                 ))}

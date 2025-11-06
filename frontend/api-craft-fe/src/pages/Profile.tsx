@@ -19,7 +19,7 @@ import {
   Settings,
   Camera
 } from "lucide-react";
-import { postsAPI, usersAPI, authAPI, getToken } from "@/lib/api";
+import { postsAPI, usersAPI, authAPI, getToken, getAvatarUrl } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import ReputationBadge from "@/components/ReputationBadge";
 import BadgesList from "@/components/BadgesList";
@@ -214,7 +214,7 @@ const Profile = () => {
             <div className="flex items-center space-x-4">
               <div className="relative">
                 <Avatar className="h-24 w-24">
-                  <AvatarImage src={profileUser.avatar} />
+                  <AvatarImage src={getAvatarUrl(profileUser.avatar)} />
                   <AvatarFallback className="bg-primary text-primary-foreground text-3xl">
                     {profileUser.username.charAt(0).toUpperCase()}
                   </AvatarFallback>

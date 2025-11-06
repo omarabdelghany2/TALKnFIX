@@ -41,6 +41,15 @@ const handleResponse = async (response: Response) => {
   return response.json();
 };
 
+// Helper to get full avatar URL
+export const getAvatarUrl = (avatarPath?: string) => {
+  if (!avatarPath) return undefined;
+  // If it's already a full URL, return it
+  if (avatarPath.startsWith('http')) return avatarPath;
+  // Otherwise, prepend the API_URL
+  return `${API_URL}${avatarPath}`;
+};
+
 // Auth API
 export const authAPI = {
   login: async (credentials: { email: string; password: string }) => {
